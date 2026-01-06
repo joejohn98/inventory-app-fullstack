@@ -1,16 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -23,7 +16,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
-
+  products      Product[]     
+  departments   Department[]  
+  suppliers     Supplier[]    
   @@unique([email])
   @@map("user")
 }
@@ -38,7 +33,6 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([token])
   @@index([userId])
   @@map("session")
@@ -59,7 +53,6 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-
   @@index([userId])
   @@map("account")
 }
@@ -71,7 +64,60 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
   @@index([identifier])
   @@map("verification")
+}
+
+// Inventory Management Models with User Ownership
+model Department {
+  id        String    @id @default(cuid())
+  name      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@unique([name, userId]) // Unique per user
+  @@index([userId])
+  @@map("department")
+}
+
+model Supplier {
+  id        String    @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@unique([name, userId]) // Unique per user
+  @@index([userId])
+  @@map("supplier")
+}
+
+model Product {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  price        Decimal    @db.Decimal(10, 2)
+  stock        Int        @default(0)
+  delivered    Int        @default(0)
+  sku          String
+  imageUrl     String?
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  supplierId   String
+  supplier     Supplier   @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  @@unique([sku, userId]) // SKU unique per user
+  @@index([userId])
+  @@index([departmentId])
+  @@index([supplierId])
+  @@map("product")
 }
