@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { SignUpFormData, signupSchema } from "@/lib/validation";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const SignUpForm = () => {
   const {
@@ -16,15 +18,30 @@ const SignUpForm = () => {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const router = useRouter();
+
+  const onSubmit = async (userInfo: SignUpFormData) => {
     try {
-      console.log(data);
-    } catch (error) {
-      console.log("error submitting form", error);
-      if (error instanceof Error) {
-        console.log(error.message);
+      const { fullName, email, password } = userInfo;
+      const { error } = await authClient.signUp.email(
+        {
+          name: fullName,
+          email,
+          password,
+          callbackURL: "/auth/sign-in",
+        },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
+      if (error) {
         setError("root", { message: error.message });
+        return;
       }
+    } catch (error) {
+      if (error instanceof Error) setError("root", { message: error.message });
     }
   };
 
