@@ -12,3 +12,6 @@ export const auth = betterAuth({
     autoSignIn: false,
   },
 });
+
+export type Session = typeof auth.$Infer.Session;
+export type User = Session["user"];

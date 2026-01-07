@@ -7,6 +7,7 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
+import UserBlock from "@/components/userBlock";
 
 const navItems = [
   {
@@ -58,6 +59,7 @@ const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
       <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700">
         <div className="flex items-center justify-between">
           {/* User Info Here */}
+          <UserBlock />
         </div>
       </div>
     </div>

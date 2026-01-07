@@ -1,0 +1,82 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+
+const UserBlock = () => {
+  const { data: sessionQuery } = authClient.useSession();
+  const sessionData = sessionQuery ?? null;
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true);
+      await authClient.signOut({
+        fetchOptions: {
+          onRequest: () => {
+            setIsSigningOut(true);
+          },
+          onSuccess: () => {
+            router.push("/");
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      }
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
+  if (!sessionData || !sessionData.user) {
+    return (
+      <div className="flex items-center justify-between w-full">
+        <div className="text-sm text-gray-300">Not signed in</div>
+        <Link href="/sign-in" className="text-purple-400 text-sm">
+          Sign in
+        </Link>
+      </div>
+    );
+  }
+
+  const user = sessionData.user;
+
+  const name = user.name || user.email || "User";
+  const initials = name
+    .split(" ")
+    .map((n: string) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-medium">
+          {initials}
+        </div>
+        <div>
+          <div className="text-sm font-medium">{name}</div>
+          <div className="text-xs text-gray-400">{user.email}</div>
+        </div>
+      </div>
+
+      <div>
+        <button
+          onClick={handleSignOut}
+          className="text-sm text-purple-400 hover:text-purple-300"
+          disabled={isSigningOut}
+        >
+          {isSigningOut ? "Signing out..." : "Sign out"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default UserBlock;
