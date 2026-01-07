@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInFormData, signInSchema } from "@/lib/validation";
+import { authClient } from "@/lib/auth-client";
 
 const SignInForm = () => {
   const {
@@ -15,10 +16,19 @@ const SignInForm = () => {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (userInfo: SignInFormData) => {
+    const { email, password } = userInfo;
     await new Promise((res) => setTimeout(res, 2000));
     try {
-      console.log(data);
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: "/dashboard",
+      });
+      if (error) {
+        setError("root", { message: error.message });
+        return;
+      }
     } catch (error) {
       console.log("error submitting form", error);
       if (error instanceof Error) {
