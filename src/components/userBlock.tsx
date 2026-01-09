@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
+import Image from "next/image";
 
 const UserBlock = () => {
   const { data: sessionQuery } = authClient.useSession();
@@ -58,7 +59,15 @@ const UserBlock = () => {
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-medium">
-          {initials}
+          {user.image ? (
+            <Image
+              src={user.image}
+              alt={user.name}
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            initials
+          )}
         </div>
         <div>
           <div className="text-sm font-medium">{name}</div>
