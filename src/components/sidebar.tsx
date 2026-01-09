@@ -23,7 +23,7 @@ const navItems = [
 
 const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
   return (
-    <div className="w-[20%] fixed min-h-screen bg-slate-800 p-6 text-white z-10">
+    <div className="w-68 fixed min-h-screen bg-slate-800 p-6 text-white z-10">
       <div className="mb-8">
         <div className="flex items-center space-x-2 mb-4">
           <BarChart3 className="w-7 h-7" />
@@ -56,7 +56,7 @@ const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
         })}
       </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
         <div className="flex items-center justify-between">
           {/* User Info Here */}
           <UserBlock />

@@ -9,7 +9,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const demoUserId = "133767f0-768d-4338-a612-50c8dc722b84";
+  const demoUserId = "McIMzgJA5nC8Uhpjsnw20Shmq8VfzFOM";
 
   // Ensure user exists
   await prisma.user.upsert({
@@ -43,7 +43,8 @@ async function main() {
       supplierId: supplier.id,
       name: `Product ${i + 1}`,
       price: (Math.random() * 90 + 10).toFixed(2),
-      stock: Math.floor(Math.random() * 20),
+      stock: Math.floor(Math.random() * 60),
+      delivered: Math.floor(Math.random() * 100),
       sku: `SKU-${i + 1}`,
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * (i * 5)),
     })),
@@ -52,7 +53,6 @@ async function main() {
   console.log("Seed data created successfully!");
   console.log(`Created 25 products for user ID: ${demoUserId}`);
 }
-
 
 main()
   .catch((e) => {
