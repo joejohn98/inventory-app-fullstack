@@ -15,8 +15,8 @@ const navItems = [
     icon: <LayoutDashboard size={20} />,
     name: "Dashboard",
   },
-  { href: "/inventory", icon: <Package size={20} />, name: "Inventory" },
   { href: "/departments", icon: <BoxesIcon size={20} />, name: "Departments" },
+  { href: "/inventory", icon: <Package size={20} />, name: "Inventory" },
   { href: "/add-product", icon: <Plus size={20} />, name: "Add Product" },
   { href: "/settings", icon: <Settings size={20} />, name: "Settings" },
 ];
