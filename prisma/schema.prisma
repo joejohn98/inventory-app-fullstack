@@ -68,10 +68,18 @@ model Verification {
   @@map("verification")
 }
 
+enum DepartmentName {
+  Kitchen
+  Electronics
+  Clothing
+  Toys
+}
+
+
 // Inventory Management Models with User Ownership
 model Department {
   id        String    @id @default(cuid())
-  name      String
+  name      DepartmentName
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   products  Product[]

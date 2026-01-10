@@ -28,9 +28,15 @@ async function main() {
   await prisma.supplier.deleteMany({ where: { userId: demoUserId } });
 
   // Create dependencies
-  const department = await prisma.department.create({
-    data: { name: "General", userId: demoUserId },
+  const departments = await prisma.department.createManyAndReturn({
+    data: [
+      { name: "Toys", userId: demoUserId },
+      { name: "Clothing", userId: demoUserId },
+      { name: "Electronics", userId: demoUserId },
+      { name: "Kitchen", userId: demoUserId },
+    ]
   });
+
   const supplier = await prisma.supplier.create({
     data: { name: "Main Supplier", userId: demoUserId },
   });
@@ -39,7 +45,7 @@ async function main() {
   await prisma.product.createMany({
     data: Array.from({ length: 25 }).map((_, i) => ({
       userId: demoUserId,
-      departmentId: department.id,
+      departmentId: departments[i % departments.length].id,
       supplierId: supplier.id,
       name: `Product ${i + 1}`,
       price: (Math.random() * 90 + 10).toFixed(2),

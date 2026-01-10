@@ -75,6 +75,8 @@ const Dashboard = async () => {
   const lowStockPercentage =
     totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
 
+  console.log(lowStockProducts.filter((p) => p.stock > 0));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/dashboard" />
@@ -163,43 +165,45 @@ const Dashboard = async () => {
             </h2>
             {lowStockProducts.length > 0 ? (
               <div className="space-y-4">
-                {lowStockProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between border-b border-slate-100 pb-3"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 rounded-md overflow-hidden bg-slate-100">
-                        <Image
-                          src={product.imageUrl || "/placeholder.svg"}
-                          width={100}
-                          height={100}
-                          alt={product.name}
-                          className="h-full w-full object-cover"
-                        />
+                {lowStockProducts
+                  .filter((p) => p.stock > 0)
+                  .map((product) => (
+                    <div
+                      key={product.id}
+                      className="flex items-center justify-between border-b border-slate-100 pb-3"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="h-12 w-12 rounded-md overflow-hidden bg-slate-100">
+                          <Image
+                            src={product.imageUrl || "/No_Image_Available.jpg"}
+                            width={100}
+                            height={100}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-800">
+                            {product.name}
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            {product.department.name}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-slate-800">
-                          {product.name}
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {product.department.name}
-                        </p>
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            product.stock <= 5
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {product.stock} in stock
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          product.stock <= 5
-                            ? "bg-rose-100 text-rose-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {product.stock} in stock
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             ) : (
               <p className="text-slate-500">No low stock items found.</p>
