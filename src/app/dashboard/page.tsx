@@ -60,6 +60,21 @@ const Dashboard = async () => {
 
   const lowStockProducts = allProducts.filter((product) => product.stock <= 10);
 
+  const inStockCount = allProducts.filter((p) => Number(p.stock) > 10).length;
+  const outOfStockCount = allProducts.filter(
+    (p) => Number(p.stock) === 0
+  ).length;
+  const lowStockCount = allProducts.filter(
+    (p) => Number(p.stock) >= 1 && Number(p.stock) <= 10
+  ).length;
+
+  const inStockPercentage =
+    totalProducts > 0 ? Math.round((inStockCount / totalProducts) * 100) : 0;
+  const outOfStockPercentage =
+    totalProducts > 0 ? Math.round((outOfStockCount / totalProducts) * 100) : 0;
+  const lowStockPercentage =
+    totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/dashboard" />
@@ -189,6 +204,72 @@ const Dashboard = async () => {
             ) : (
               <p className="text-slate-500">No low stock items found.</p>
             )}
+          </div>
+
+          {/* Efficiency */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className=" text-lg font-semibold text-gray-900">
+                Efficiency
+              </h2>
+            </div>
+            {/* Circular progress bar for In Stock percentage */}
+            <div className="flex items-center justify-center">
+              <div className="relative w-48 h-48">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 192 192">
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="92"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="92"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    strokeDasharray="578"
+                    strokeDashoffset={578 - (578 * inStockPercentage) / 100}
+                    className="text-purple-600"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {inStockPercentage}%
+                    </div>
+                    <div className="text-sm text-gray-600">In Stock</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stock status breakdown */}
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-600" />
+                  <span>In Stock ({inStockPercentage}%)</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-200" />
+                  <span>Low Stock ({lowStockPercentage}%)</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-gray-200" />
+                  <span>Out of Stock ({outOfStockPercentage}%)</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
