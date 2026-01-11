@@ -3,7 +3,7 @@
 import { Filter, Package, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 interface Product {
   id: string;
@@ -11,12 +11,12 @@ interface Product {
   description: string | null;
   price: number;
   stock: number;
+  sku: string;
   imageUrl: string | null;
   department?: string;
 }
 
 const Products = ({ products }: { products: Product[] }) => {
-  const [filteredProducts, setFilteredProducts] = useState(products);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [department, setDepartment] = useState("all");
@@ -24,6 +24,76 @@ const Products = ({ products }: { products: Product[] }) => {
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
+  console.log(products);
+
+  const searchFilter = useCallback(
+    (product: Product) => {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      return (
+        product.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+        product.description?.toLowerCase().includes(lowerCaseSearchTerm) ||
+        product.sku.toLowerCase().includes(lowerCaseSearchTerm)
+      );
+    },
+    [searchTerm]
+  );
+
+  const departmentFilter = useCallback(
+    (product: Product) => {
+      return (
+        department === "all" || product.department?.toLowerCase() === department
+      );
+    },
+    [department]
+  );
+
+  const stockFilter = useCallback(
+    (product: Product) => {
+      return !lowStock || product.stock <= 10;
+    },
+    [lowStock]
+  );
+
+  const sortProducts = useCallback(
+    (a: Product, b: Product) => {
+      let comparison = 0;
+
+      if (sortBy === "name") {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortBy === "price") {
+        comparison = a.price - b.price;
+      } else if (sortBy === "stock") {
+        comparison = a.stock - b.stock;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    },
+    [sortBy, sortOrder]
+  );
+
+  const filterAndSortProducts = useCallback(
+    (products: Product[]) => {
+      return products
+        .filter(searchFilter)
+        .filter(departmentFilter)
+        .filter(stockFilter)
+        .sort(sortProducts);
+    },
+    [searchFilter, departmentFilter, stockFilter, sortProducts]
+  );
+
+  const filteredProducts = useMemo(() => {
+    return filterAndSortProducts(products);
+  }, [products, filterAndSortProducts]);
+
+  const toggleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -89,7 +159,7 @@ const Products = ({ products }: { products: Product[] }) => {
                 </label>
                 <select
                   value={department}
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full p-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent outline-none"
                   onChange={(e) => setDepartment(e.target.value)}
                 >
                   <option value="all">All Departments</option>
@@ -114,6 +184,7 @@ const Products = ({ products }: { products: Product[] }) => {
                         ? "bg-purple-50 border-purple-200 text-purple-700"
                         : "border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
+                    onClick={() => toggleSort("name")}
                   >
                     Name{" "}
                     {sortBy === "name" && (sortOrder === "asc" ? "↓" : "↑")}
@@ -124,9 +195,10 @@ const Products = ({ products }: { products: Product[] }) => {
                         ? "bg-purple-50 border-purple-200 text-purple-700"
                         : "border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
+                    onClick={() => toggleSort("price")}
                   >
                     Price{" "}
-                    {sortBy === "price" && (sortOrder === "asc" ? "↑" : "↓")}
+                    {sortBy === "price" && (sortOrder === "asc" ? "↓" : "↑")}
                   </button>
                   <button
                     className={`flex-1 px-3 py-2 rounded-lg border ${
@@ -134,9 +206,10 @@ const Products = ({ products }: { products: Product[] }) => {
                         ? "bg-purple-50 border-purple-200 text-purple-700"
                         : "border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
+                    onClick={() => toggleSort("stock")}
                   >
                     Stock{" "}
-                    {sortBy === "stock" && (sortOrder === "asc" ? "↑" : "↓")}
+                    {sortBy === "stock" && (sortOrder === "asc" ? "↓" : "↑")}
                   </button>
                 </div>
               </div>
