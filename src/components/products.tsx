@@ -1,16 +1,37 @@
 "use client";
 
-import { Filter, Search } from "lucide-react";
+import { Filter, Package, Search } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
-import { is } from "zod/locales";
 
-const Products = ({ products }) => {
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  stock: number;
+  imageUrl: string | null;
+  department?: string;
+}
+
+const Products = ({ products }: { products: Product[] }) => {
+  const [filteredProducts, setFilteredProducts] = useState(products);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [department, setDepartment] = useState("all");
   const [lowStock, setLowStock] = useState(false);
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setDepartment("all");
+    setLowStock(false);
+    setSortBy("name");
+    setSortOrder("asc");
+  };
 
   return (
     <div>
@@ -29,6 +50,8 @@ const Products = ({ products }) => {
             </div>
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search products..."
               className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
             />
@@ -44,7 +67,10 @@ const Products = ({ products }) => {
               Filters
             </button>
 
-            <button className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            <button
+              className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={clearFilters}
+            >
               Clear
             </button>
           </div>
@@ -133,6 +159,88 @@ const Products = ({ products }) => {
           </div>
         )}
       </div>
+
+      {filteredProducts.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+          <Package size={48} className="mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            No products found
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Try adjusting your search or filter criteria
+          </p>
+          <button
+            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors shadow-sm"
+            onClick={clearFilters}
+          >
+            Clear Filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <Link
+              key={product.id}
+              href={`/inventory/${product.id}`}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col h-full"
+            >
+              <div className="relative aspect-square bg-gray-50">
+                <Image
+                  src={product.imageUrl || "/No_Image_Available.jpg"}
+                  width={400}
+                  height={400}
+                  loading="eager"
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+                {product.stock <= 10 && (
+                  <span className="absolute top-2 right-2 px-2 py-1 bg-rose-500 text-white text-xs font-medium rounded-md">
+                    Low Stock
+                  </span>
+                )}
+                {product.stock === 0 && (
+                  <span className="absolute top-2 right-2 px-2 py-1 bg-red-600 text-white text-xs font-medium rounded-md">
+                    Out of Stock
+                  </span>
+                )}
+              </div>
+
+              <div className="p-4 flex-1 flex flex-col">
+                <div className="mb-2">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-md">
+                    {product.department}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
+                  {product.name}
+                </h3>
+                <p className="text-gray-500 text-sm mb-3 line-clamp-2">
+                  {product.description}
+                </p>
+
+                <div className="mt-auto space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Price:</span>
+                    <span className="font-semibold text-gray-800">
+                      ${Number(product.price).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Stock:</span>
+                    <span
+                      className={`font-semibold ${
+                        product.stock <= 10 ? "text-rose-600" : "text-gray-800"
+                      }`}
+                    >
+                      {product.stock}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

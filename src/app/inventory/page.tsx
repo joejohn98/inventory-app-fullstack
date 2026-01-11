@@ -11,7 +11,16 @@ const Inventory = async () => {
     where: {
       userId,
     },
+    include: {
+      department: true,
+    },
   });
+
+  const serializedProducts = products.map((product) => ({
+    ...product,
+    price: product.price.toNumber(),
+    department: product.department.name,
+  }));
 
   // console.log(products);
 
@@ -19,7 +28,7 @@ const Inventory = async () => {
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/inventory" />
       <main className="ml-64 p-4 md:p-8">
-        <Products products={products} />
+        <Products products={serializedProducts} />
       </main>
     </div>
   );
