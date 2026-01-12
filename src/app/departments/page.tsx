@@ -71,7 +71,7 @@ const Departments = async () => {
             return (
               <Link
                 key={dept.id}
-                href={`/products?department=${dept.name}`}
+                href={`/inventory?department=${dept.name.toLowerCase()}`}
                 className={`${config.color} border rounded-xl shadow-sm overflow-hidden transition-all duration-200 ${config.hoverColor} hover:shadow-md cursor-pointer group block`}
               >
                 <div className="p-6">

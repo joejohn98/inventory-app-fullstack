@@ -3,7 +3,9 @@
 import { Filter, Package, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Pagination from "./pagination";
 
 interface Product {
   id: string;
@@ -16,15 +18,26 @@ interface Product {
   department?: string;
 }
 
-const Products = ({ products }: { products: Product[] }) => {
+const Products = ({
+  products,
+}: {
+  products: Product[];
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [department, setDepartment] = useState("all");
   const [lowStock, setLowStock] = useState(false);
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
 
-  console.log(products);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const deptParams = searchParams.get("department");
+    setDepartment(deptParams || "all");
+  }, [searchParams]);
 
   const searchFilter = useCallback(
     (product: Product) => {
@@ -86,6 +99,18 @@ const Products = ({ products }: { products: Product[] }) => {
     return filterAndSortProducts(products);
   }, [products, filterAndSortProducts]);
 
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const toggleSort = (field: string) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -101,6 +126,7 @@ const Products = ({ products }: { products: Product[] }) => {
     setLowStock(false);
     setSortBy("name");
     setSortOrder("asc");
+    setPage(1);
   };
 
   return (
@@ -121,7 +147,10 @@ const Products = ({ products }: { products: Product[] }) => {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search products..."
               className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
             />
@@ -160,7 +189,10 @@ const Products = ({ products }: { products: Product[] }) => {
                 <select
                   value={department}
                   className="w-full p-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent outline-none"
-                  onChange={(e) => setDepartment(e.target.value)}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                    setPage(1);
+                  }}
                 >
                   <option value="all">All Departments</option>
                   <option value="kitchen">Kitchen</option>
@@ -187,7 +219,7 @@ const Products = ({ products }: { products: Product[] }) => {
                     onClick={() => toggleSort("name")}
                   >
                     Name{" "}
-                    {sortBy === "name" && (sortOrder === "asc" ? "↓" : "↑")}
+                    {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
                   </button>
                   <button
                     className={`flex-1 px-3 py-2 rounded-lg border ${
@@ -222,7 +254,10 @@ const Products = ({ products }: { products: Product[] }) => {
                   <input
                     type="checkbox"
                     checked={lowStock}
-                    onChange={(e) => setLowStock(e.target.checked)}
+                    onChange={(e) => {
+                      setLowStock(e.target.checked);
+                      setPage(1);
+                    }}
                     className="mr-2 h-4 w-4 text-purple-500 focus:ring-purple-500 border-gray-300 rounded"
                   />
                   <span className="text-gray-700">Low Stock Only (≤ 10)</span>
@@ -232,6 +267,8 @@ const Products = ({ products }: { products: Product[] }) => {
           </div>
         )}
       </div>
+
+      {/*  */}
 
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
@@ -251,7 +288,7 @@ const Products = ({ products }: { products: Product[] }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {paginatedProducts.map((product) => (
             <Link
               key={product.id}
               href={`/inventory/${product.id}`}
@@ -312,6 +349,16 @@ const Products = ({ products }: { products: Product[] }) => {
               </div>
             </Link>
           ))}
+        </div>
+      )}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
     </div>
