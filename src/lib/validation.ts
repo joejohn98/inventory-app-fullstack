@@ -39,6 +39,26 @@ export const signInSchema = z.object({
     ),
 });
 
+export const addProductSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  description: z.string().optional(),
+  price: z.coerce.number().min(1, "Product price is required"),
+  imageUrl: z.string().optional(),
+  sku: z
+    .string()
+    .min(5, "Product sku is required")
+    .max(16, "Product sku must be at most 16 characters long"),
+  stock: z.coerce.number().min(1, "Product stock is required"),
+  totalDelivered: z.coerce
+    .number()
+    .min(1, "Product total delivered is required"),
+  department: z.string().min(1, "Product department is required"),
+  supplier: z.string().min(1, "Product supplier is required"),
+});
+
 export type SignInFormData = z.infer<typeof signInSchema>;
 
 export type SignUpFormData = z.infer<typeof signupSchema>;
+
+export type AddProductInputData = z.input<typeof addProductSchema>;
+export type AddProductFormData = z.output<typeof addProductSchema>;
