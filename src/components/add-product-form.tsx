@@ -4,6 +4,7 @@ import { Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   AddProductFormData,
   AddProductInputData,
@@ -22,20 +23,24 @@ const AddProductForm = () => {
     resolver: zodResolver(addProductSchema),
   });
 
-  console.log(errors.price);
-
   const onSubmit = async (data: AddProductInputData) => {
     try {
-      await createProduct(data as AddProductFormData);
-      router.push("/inventory");
-    } catch (error) {
-      console.error("Error creating product:", error);
-      if (error instanceof Error) {
+      const result = await createProduct(data as AddProductFormData);
+
+      if (result?.success) {
+        router.push("/inventory");
+      } else if (result?.message) {
         setError("root", {
-          message:
-            error.message || "Failed to create product. Please try again.",
+          message: result.message,
         });
       }
+    } catch (error) {
+      console.error("Error creating product:", error);
+      setError("root", {
+        message:
+          errors.root?.message ||
+          "An unexpected error occurred. Please try again.",
+      });
     }
   };
 
@@ -47,7 +52,7 @@ const AddProductForm = () => {
           Fill in the details to add a new product to inventory
         </p>
         {errors.root && (
-          <p className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+          <p className="mt-3 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-lg text-sm">
             {errors.root.message}
           </p>
         )}

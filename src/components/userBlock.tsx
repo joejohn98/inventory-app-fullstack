@@ -62,6 +62,8 @@ const UserBlock = () => {
           {user.image ? (
             <Image
               src={user.image}
+              width={40}
+              height={40}
               alt={user.name}
               className="w-full h-full object-cover rounded-full"
             />

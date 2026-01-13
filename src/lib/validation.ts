@@ -56,9 +56,22 @@ export const addProductSchema = z.object({
   supplier: z.string().min(1, "Product supplier is required"),
 });
 
+export const updateUserSettingsSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters long"),
+  email: z.email("Invalid email address").min(1, "Email is required"),
+  image: z
+    .union([z.url("Must be a valid URL"), z.literal("")])
+    .nullable()
+    .optional(),
+});
+
 export type SignInFormData = z.infer<typeof signInSchema>;
 
 export type SignUpFormData = z.infer<typeof signupSchema>;
 
 export type AddProductInputData = z.input<typeof addProductSchema>;
 export type AddProductFormData = z.output<typeof addProductSchema>;
+
+export type UpdateUserSettingsFormData = z.infer<
+  typeof updateUserSettingsSchema
+>;

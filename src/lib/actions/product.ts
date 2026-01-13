@@ -51,7 +51,6 @@ export async function createProduct(data: AddProductFormData) {
     totalDelivered,
   } = validatedFields.data;
 
- 
   const deptName = department as Department["name"];
 
   try {
@@ -111,5 +110,5 @@ export async function createProduct(data: AddProductFormData) {
   }
 
   revalidatePath("/inventory");
-  redirect("/inventory");
+  return { success: true, message: "Product created successfully!" };
 }
