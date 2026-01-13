@@ -9,6 +9,7 @@ import {
   AddProductInputData,
   addProductSchema,
 } from "@/lib/validation";
+import { createProduct } from "@/lib/actions/product";
 
 const AddProductForm = () => {
   const router = useRouter();
@@ -25,7 +26,6 @@ const AddProductForm = () => {
 
   const onSubmit = async (data: AddProductInputData) => {
     try {
-      console.log(data);
       await createProduct(data as AddProductFormData);
       router.push("/inventory");
     } catch (error) {

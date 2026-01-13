@@ -3,8 +3,11 @@ import { ArrowLeft } from "lucide-react";
 
 import Sidebar from "@/components/sidebar";
 import AddProductForm from "@/components/add-product-form";
+import { getUserSession } from "@/lib/session";
 
-const AddProduct = () => {
+const AddProduct = async () => {
+  await getUserSession();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/add-product" />

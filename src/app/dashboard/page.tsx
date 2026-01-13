@@ -75,7 +75,6 @@ const Dashboard = async () => {
   const lowStockPercentage =
     totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
 
-  console.log(lowStockProducts.filter((p) => p.stock > 0));
 
   return (
     <div className="min-h-screen bg-gray-50">
