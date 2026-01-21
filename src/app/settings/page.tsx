@@ -2,6 +2,7 @@ import Sidebar from "@/components/sidebar";
 import SettingsForm from "@/components/settings-form";
 import { getUserSession } from "@/lib/session";
 import { Settings } from "lucide-react";
+import Image from "next/image";
 
 const SettingsPage = async () => {
   const session = await getUserSession();
@@ -60,8 +61,10 @@ const SettingsPage = async () => {
               <div className="flex flex-col items-center mb-6">
                 <div className="w-24 h-24 rounded-full bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-2xl font-bold mb-3 shadow-lg">
                   {user.image ? (
-                    <img
+                    <Image
                       src={user.image}
+                      width={40}
+                      height={40}
                       alt={user.name}
                       className="w-full h-full object-cover rounded-full"
                     />

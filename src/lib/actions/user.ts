@@ -9,6 +9,8 @@ import {
 
 import { getUserSession } from "@/lib/session";
 import prisma from "@/lib/prisma";
+import { isBlockedHost, validateImageUrl } from "@/lib/utils";
+import cloudinary from "@/lib/cloudinary";
 
 export async function updateUserSettings(data: UpdateUserSettingsFormData) {
   const session = await getUserSession();
@@ -54,13 +56,49 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
       }
     }
 
+    let cloudinaryImageUrl: string | null = null;
+
+    if (image) {
+      if (image !== session.user.image) {
+        const parsedUrl = validateImageUrl(image);
+        if (!parsedUrl) {
+          return { message: "Invalid image URL. HTTPS required." };
+        }
+
+        if (isBlockedHost(parsedUrl.hostname)) {
+          return { message: "Image URL is not allowed." };
+        }
+
+        try {
+          const uploadResult = await cloudinary.uploader.upload(image, {
+            folder: "profile-images",
+            transformation: [
+              { width: 400, height: 400, crop: "fill" },
+              { quality: "auto" },
+              { fetch_format: "auto" },
+            ],
+          });
+
+          cloudinaryImageUrl = uploadResult.secure_url;
+        } catch (error) {
+          console.error("Cloudinary Upload Error:", error);
+          return {
+            message:
+              "Failed to upload profile image. Ensure the URL is public.",
+          };
+        }
+      } else {
+        cloudinaryImageUrl = image;
+      }
+    }
+
     // Update user
     await prisma.user.update({
       where: { id: userId },
       data: {
         name,
         email,
-        image: image || null,
+        image: cloudinaryImageUrl,
       },
     });
   } catch (error) {

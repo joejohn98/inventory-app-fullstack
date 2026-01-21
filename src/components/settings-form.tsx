@@ -42,7 +42,6 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
     defaultValues: {
       name: user.name,
       email: user.email,
-      image: user.image,
     },
   });
 
