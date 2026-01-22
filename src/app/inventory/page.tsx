@@ -29,7 +29,6 @@ const Inventory = async () => {
     department: product.department.name,
   }));
 
-  // console.log(products);
 
   return (
     <div className="min-h-screen bg-gray-50">

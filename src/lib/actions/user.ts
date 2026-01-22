@@ -71,7 +71,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
 
         try {
           const uploadResult = await cloudinary.uploader.upload(image, {
-            folder: "profile-images",
+            folder: "inventory-app/profile-images",
             transformation: [
               { width: 400, height: 400, crop: "fill" },
               { quality: "auto" },
