@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { SignUpFormData, signupSchema } from "@/lib/validation";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import SocialAuthButtons from "./auth/social-auth-buttons";
 
 const SignUpForm = () => {
   const {
@@ -34,7 +35,7 @@ const SignUpForm = () => {
           onSuccess: () => {
             router.push("/sign-in");
           },
-        }
+        },
       );
       if (error) {
         setError("root", { message: error.message });
@@ -56,6 +57,8 @@ const SignUpForm = () => {
             Create an account to start managing your inventory.
           </p>
         </div>
+
+        <SocialAuthButtons isLoading={isLoading} mode="signup" />
 
         <form
           onSubmit={handleSubmit(onSubmit)}

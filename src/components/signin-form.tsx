@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInFormData, signInSchema } from "@/lib/validation";
 import { authClient } from "@/lib/auth-client";
+import SocialAuthButtons from "@/components/auth/social-auth-buttons";
 
 const SignInForm = () => {
   const {
@@ -47,6 +48,8 @@ const SignInForm = () => {
           </h2>
           <p className="text-gray-600">Sign in to manage your inventory.</p>
         </div>
+
+        <SocialAuthButtons isLoading={isLoading} mode="signin" />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
