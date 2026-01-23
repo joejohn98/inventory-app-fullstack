@@ -149,3 +149,114 @@ export async function createProduct(data: AddProductFormData) {
   revalidatePath("/inventory");
   return { success: true, message: "Product created successfully!" };
 }
+
+export async function updateProduct(
+  productId: string,
+  data: AddProductFormData
+) {
+  const session = await getUserSession();
+  if (!session?.user?.id) {
+    return {
+      message: "Unauthorized access. Please sign in.",
+    };
+  }
+  const userId = session.user.id;
+
+  const rawData = {
+    name: data.name,
+    description: data.description,
+    department: data.department,
+    price: data.price,
+    stock: data.stock,
+    sku: data.sku,
+    supplier: data.supplier,
+    imageUrl: data.imageUrl,
+    totalDelivered: data.totalDelivered,
+  };
+
+  const validatedFields = addProductSchema.safeParse(rawData);
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Please fix the errors below.",
+    };
+  }
+
+  const {
+    name,
+    description,
+    department,
+    price,
+    stock,
+    sku,
+    supplier,
+    imageUrl,
+    totalDelivered,
+  } = validatedFields.data;
+
+  const deptName = department as Department["name"];
+  let cloudinaryProductImageUrl: string | null = imageUrl || null;
+
+  if (imageUrl && !imageUrl.includes("cloudinary.com")) {
+    const parsedUrl = validateImageUrl(imageUrl);
+    if (!parsedUrl) {
+      return { error: "Invalid image URL. HTTPS required." };
+    }
+
+    if (isBlockedHost(parsedUrl.hostname)) {
+      return { error: "Image URL is not allowed." };
+    }
+
+    try {
+      const uploadResult = await cloudinary.uploader.upload(imageUrl, {
+        folder: "inventory-app/products",
+      });
+
+      cloudinaryProductImageUrl = uploadResult.secure_url;
+    } catch (error) {
+      console.error("Cloudinary Upload Error:", error);
+      return {
+        message: "Failed to upload product image.",
+      };
+    }
+  }
+
+  try {
+    await prisma.product.update({
+      where: { id: productId },
+      data: {
+        name,
+        description,
+        price,
+        stock,
+        sku,
+        imageUrl: cloudinaryProductImageUrl,
+        delivered: totalDelivered,
+      },
+    });
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { message: "Database Error: Failed to update product." };
+  }
+
+  revalidatePath("/inventory");
+  revalidatePath(`/inventory/${productId}`);
+  return { success: true, message: "Product updated successfully!" };
+}
+
+export const deleteProduct = async (productId: string) => {
+  try {
+    const product = await prisma.product.delete({
+      where: { id: productId },
+    });
+    if (!product) {
+      throw new Error("Product not found");
+    }
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to delete product");
+  }
+  revalidatePath("/inventory");
+  return { success: true, message: "Product deleted successfully!" };
+};
