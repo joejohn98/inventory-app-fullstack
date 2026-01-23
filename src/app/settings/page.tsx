@@ -1,8 +1,9 @@
-import Sidebar from "@/components/sidebar";
-import SettingsForm from "@/components/settings-form";
-import { getUserSession } from "@/lib/session";
 import { Settings } from "lucide-react";
 import Image from "next/image";
+
+import Sidebar from "@/components/sidebar";
+import SettingsForm from "@/components/form/settings-form";
+import { getUserSession } from "@/lib/session";
 
 const SettingsPage = async () => {
   const session = await getUserSession();

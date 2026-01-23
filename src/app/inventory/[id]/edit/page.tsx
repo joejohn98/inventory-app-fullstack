@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
-import EditProductForm from "@/components/edit-product-form";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
+
+import prisma from "@/lib/prisma";
 import Sidebar from "@/components/sidebar";
+import EditProductForm from "@/components/form/edit-product-form";
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;

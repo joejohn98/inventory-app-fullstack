@@ -11,22 +11,21 @@ export default function ProductActions({ productId }: { productId: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      setIsDeleting(true);
-      try {
-        const result = await deleteProduct(productId);
-        if (result.success) {
-          router.push("/inventory");
-          router.refresh();
-        } else {
-          alert(result.message || "Failed to delete product");
-        }
-      } catch (error) {
-        console.error("Error deleting product:", error);
-        alert("An error occurred while deleting the product");
-      } finally {
-        setIsDeleting(false);
+    setIsDeleting(true);
+    try {
+      const result = await deleteProduct(productId);
+      if (result.success) {
+        router.push("/inventory");
+        router.refresh();
+      } else {
+        throw new Error(
+          result.message || "An error occurred while deleting the product",
+        );
       }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 

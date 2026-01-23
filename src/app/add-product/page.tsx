@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import Sidebar from "@/components/sidebar";
-import AddProductForm from "@/components/add-product-form";
+import AddProductForm from "@/components/form/add-product-form";
 import { getUserSession } from "@/lib/session";
 
 const AddProduct = async () => {

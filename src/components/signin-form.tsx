@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
 import { SignInFormData, signInSchema } from "@/lib/validation";
 import { authClient } from "@/lib/auth-client";
 import SocialAuthButtons from "@/components/auth/social-auth-buttons";
@@ -19,15 +21,20 @@ const SignInForm = () => {
 
   const onSubmit = async (userInfo: SignInFormData) => {
     const { email, password } = userInfo;
-    await new Promise((res) => setTimeout(res, 2000));
     try {
-      const { error } = await authClient.signIn.email({
+      const { data, error } = await authClient.signIn.email({
         email,
         password,
         callbackURL: "/dashboard",
       });
+      toast.success("Signed in successfully", {
+        description: `Welcome back, ${data?.user.name || data?.user.email}!`,
+      });
       if (error) {
         setError("root", { message: error.message });
+        toast.error("Sign in failed", {
+          description: error.message,
+        });
         return;
       }
     } catch (error) {
@@ -35,6 +42,9 @@ const SignInForm = () => {
       if (error instanceof Error) {
         console.log(error.message);
         setError("root", { message: error.message });
+        toast.error("Sign in failed", {
+          description: error.message,
+        });
       }
     }
   };

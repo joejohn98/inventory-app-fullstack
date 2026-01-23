@@ -1,7 +1,9 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { authClient } from "@/lib/auth-client";
 
 interface SocialAuthButtonsProps {
   isLoading: boolean;
@@ -13,6 +15,9 @@ const SocialAuthButtons = ({ isLoading, mode }: SocialAuthButtonsProps) => {
 
   const handleSocialAuth = async (provider: "google" | "github") => {
     try {
+      toast.loading(`Redirecting to ${provider}...`, {
+        description: `Please wait while we redirect you to your ${provider} account.`,
+      });
       const { data } = await authClient.signIn.social({
         provider,
         callbackURL: "/dashboard",
@@ -21,10 +26,13 @@ const SocialAuthButtons = ({ isLoading, mode }: SocialAuthButtonsProps) => {
         router.push(data.url);
       }
     } catch (error) {
-      console.log(`Social Sign in error in ${provider}`, error);
-      if (error instanceof Error) {
-        throw new Error(`Failed to authenticate with ${provider}`);
-      }
+      const errorMessage = `Failed to authenticate with ${provider}: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }.`;
+      toast.error(`${provider} ${mode} failed`, {
+        description: `${errorMessage}`,
+      });
+      throw new Error(errorMessage);
     }
   };
   const buttonText = mode === "signin" ? "Sign in with" : "Sign up with";

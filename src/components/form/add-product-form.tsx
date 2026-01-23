@@ -10,7 +10,7 @@ import {
   addProductSchema,
 } from "@/lib/validation";
 import { createProduct } from "@/lib/actions/product";
-import ProductForm from "./product-form";
+import ProductForm from "@/components/form/product-form";
 
 const AddProductForm = () => {
   const router = useRouter();

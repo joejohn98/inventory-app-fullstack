@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { SignUpFormData, signupSchema } from "@/lib/validation";
 import { authClient } from "@/lib/auth-client";
@@ -24,7 +25,7 @@ const SignUpForm = () => {
   const onSubmit = async (userInfo: SignUpFormData) => {
     try {
       const { fullName, email, password } = userInfo;
-      const { error } = await authClient.signUp.email(
+      const { data, error } = await authClient.signUp.email(
         {
           name: fullName,
           email,
@@ -37,12 +38,25 @@ const SignUpForm = () => {
           },
         },
       );
+      toast.success("Account created successfully", {
+        description: `Welcome ${data?.user.name || data?.user.email}!`,
+      });
       if (error) {
         setError("root", { message: error.message });
+        toast.error("Sign up failed", {
+          description: error.message || "Failed to create account",
+        });
         return;
       }
     } catch (error) {
-      if (error instanceof Error) setError("root", { message: error.message });
+      const errorMessage =
+        "An unexpected error occurred while signing up. Please try again later.";
+      if (error instanceof Error) {
+        setError("root", { message: error.message });
+        toast.error("Sign up failed", {
+          description: errorMessage,
+        });
+      }
     }
   };
 
