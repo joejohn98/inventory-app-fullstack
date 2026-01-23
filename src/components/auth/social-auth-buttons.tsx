@@ -1,12 +1,32 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+
 interface SocialAuthButtonsProps {
   isLoading: boolean;
   mode: "signin" | "signup";
 }
 
 const SocialAuthButtons = ({ isLoading, mode }: SocialAuthButtonsProps) => {
-  const handleSocialAuth = async (provider: "google" | "github") => {};
+  const router = useRouter();
+
+  const handleSocialAuth = async (provider: "google" | "github") => {
+    try {
+      const { data } = await authClient.signIn.social({
+        provider,
+        callbackURL: "/dashboard",
+      });
+      if (data?.url) {
+        router.push(data.url);
+      }
+    } catch (error) {
+      console.log(`Social Sign in error in ${provider}`, error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to authenticate with ${provider}`);
+      }
+    }
+  };
   const buttonText = mode === "signin" ? "Sign in with" : "Sign up with";
 
   return (
