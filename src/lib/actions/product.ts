@@ -152,7 +152,7 @@ export async function createProduct(data: AddProductFormData) {
 
 export async function updateProduct(
   productId: string,
-  data: AddProductFormData
+  data: AddProductFormData,
 ) {
   const session = await getUserSession();
   if (!session?.user?.id) {
@@ -223,17 +223,49 @@ export async function updateProduct(
   }
 
   try {
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        name,
-        description,
-        price,
-        stock,
-        sku,
-        imageUrl: cloudinaryProductImageUrl,
-        delivered: totalDelivered,
-      },
+    await prisma.$transaction(async (tx) => {
+      const dept = await tx.department.upsert({
+        where: {
+          name_userId: {
+            name: deptName,
+            userId: userId,
+          },
+        },
+        update: {},
+        create: {
+          name: deptName,
+          userId: userId,
+        },
+      });
+
+      const supp = await tx.supplier.upsert({
+        where: {
+          name_userId: {
+            name: supplier,
+            userId: userId,
+          },
+        },
+        update: {},
+        create: {
+          name: supplier,
+          userId: userId,
+        },
+      });
+
+      await tx.product.update({
+        where: { id: productId },
+        data: {
+          name,
+          description,
+          price,
+          stock,
+          sku,
+          imageUrl: cloudinaryProductImageUrl,
+          delivered: totalDelivered,
+          departmentId: dept.id,
+          supplierId: supp.id,
+        },
+      });
     });
   } catch (error) {
     console.error("Database Error:", error);
