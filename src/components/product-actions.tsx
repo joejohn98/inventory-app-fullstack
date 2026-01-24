@@ -27,6 +27,7 @@ export default function ProductActions({ productId }: { productId: string }) {
         });
       }
     } catch (error) {
+      console.error("Failed to delete product:", error);
       toast.error("Error deleting product", {
         description: "An unexpected error occurred. Please try again.",
       });

@@ -27,7 +27,7 @@ const UserBlock = () => {
       });
     } catch (error) {
       if (error instanceof Error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     } finally {
       setIsSigningOut(false);

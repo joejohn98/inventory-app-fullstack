@@ -38,12 +38,13 @@ const SignInForm = () => {
         return;
       }
     } catch (error) {
-      console.log("error submitting form", error);
+      console.error("error submitting form", error);
+      const errorMessage =
+        "An unexpected error occurred while signing in. Please try again later.";
       if (error instanceof Error) {
-        console.log(error.message);
         setError("root", { message: error.message });
         toast.error("Sign in failed", {
-          description: error.message,
+          description: errorMessage,
         });
       }
     }

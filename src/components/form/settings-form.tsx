@@ -17,6 +17,7 @@ import {
 } from "@/lib/validation";
 import { updateUserSettings } from "@/lib/actions/user";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface SettingsFormProps {
   user: {
@@ -42,6 +43,7 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
     defaultValues: {
       name: user.name,
       email: user.email,
+      image: user.image || "",
     },
   });
 
@@ -50,10 +52,10 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
 
   // Update preview when image URL changes
   useEffect(() => {
-    if (imageUrl && imageUrl !== imagePreview) {
-      setImagePreview(imageUrl);
+    if (imageUrl !== undefined) {
+      setImagePreview(imageUrl || null);
     }
-  }, [imageUrl, imagePreview]);
+  }, [imageUrl]);
 
   const onSubmit = async (data: UpdateUserSettingsFormData) => {
     setSuccessMessage(null);
@@ -62,14 +64,26 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
       const result = await updateUserSettings(data);
 
       if (result?.success) {
+        toast.success("Settings updated successfully!", {
+          description: "Your account settings have been updated.",
+        });
         setSuccessMessage(result.message || "Settings updated successfully!");
         setTimeout(() => {
           router.refresh();
         }, 1500);
+      } else if (result?.errors) {
+        Object.entries(result.errors).forEach(([key, messages]) => {
+          setError(key as keyof UpdateUserSettingsFormData, {
+            message: messages[0],
+          });
+        });
       } else if (result?.message) {
         setError("root", {
           type: "server",
           message: result.message,
+        });
+        toast.error("Failed to update settings", {
+          description: result.message,
         });
       }
     } catch (error) {
@@ -77,6 +91,10 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
       setError("root", {
         type: "server",
         message: "An unexpected error occurred. Please try again.",
+      });
+
+      toast.error("Failed to update settings", {
+        description: "An unexpected error occurred. Please try again.",
       });
     }
   };
