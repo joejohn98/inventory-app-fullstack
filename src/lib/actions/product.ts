@@ -7,7 +7,7 @@ import { Department } from "@/generated/prisma";
 import { AddProductFormData, addProductSchema } from "@/lib/validation";
 import { getUserSession } from "@/lib/session";
 import { isBlockedHost, validateImageUrl } from "../utils";
-import cloudinary from "../cloudinary";
+import cloudinary from "@/lib/cloudinary";
 
 export async function createProduct(data: AddProductFormData) {
   const session = await getUserSession();
@@ -60,12 +60,12 @@ export async function createProduct(data: AddProductFormData) {
     // Validate Image URL
     const parsedUrl = validateImageUrl(imageUrl);
     if (!parsedUrl) {
-      return { error: "Invalid image URL. HTTPS required." };
+      return { message: "Invalid image URL. HTTPS required." };
     }
 
     // Check if image URL is blocked
     if (isBlockedHost(parsedUrl.hostname)) {
-      return { error: "Image URL is not allowed." };
+      return { message: "Image URL is not allowed." };
     }
 
     try {
@@ -76,13 +76,6 @@ export async function createProduct(data: AddProductFormData) {
       cloudinaryProductImageUrl = uploadResult.secure_url;
     } catch (error) {
       console.error("Cloudinary Upload Error:", error);
-      const err = error as { message?: string };
-      if (err.message?.includes("HTML response")) {
-        return {
-          message:
-            "The URL provided is a webpage, not an image. Please use a direct image link.",
-        };
-      }
       return {
         message:
           "Failed to upload product image. Ensure the URL is publicly accessible.",
@@ -201,11 +194,11 @@ export async function updateProduct(
   if (imageUrl && !imageUrl.includes("cloudinary.com")) {
     const parsedUrl = validateImageUrl(imageUrl);
     if (!parsedUrl) {
-      return { error: "Invalid image URL. HTTPS required." };
+      return { message: "Invalid image URL. HTTPS required." };
     }
 
     if (isBlockedHost(parsedUrl.hostname)) {
-      return { error: "Image URL is not allowed." };
+      return { message: "Image URL is not allowed." };
     }
 
     try {
@@ -278,17 +271,22 @@ export async function updateProduct(
 }
 
 export const deleteProduct = async (productId: string) => {
+  const session = await getUserSession();
+  if (!session?.user?.id) {
+    return {
+      message: "Unauthorized access. Please sign in.",
+    };
+  }
+
   try {
-    const product = await prisma.product.delete({
+    await prisma.product.delete({
       where: { id: productId },
     });
-    if (!product) {
-      throw new Error("Product not found");
-    }
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to delete product");
+    return { message: "Database Error: Failed to delete product." };
   }
+
   revalidatePath("/inventory");
   return { success: true, message: "Product deleted successfully!" };
 };

@@ -11,6 +11,7 @@ import {
 } from "@/lib/validation";
 import { updateProduct } from "@/lib/actions/product";
 import ProductForm from "./product-form";
+import { toast } from "sonner";
 
 interface EditProductFormProps {
   product: {
@@ -57,17 +58,34 @@ const EditProductForm = ({ product }: EditProductFormProps) => {
       );
 
       if (result?.success) {
+        toast.success("Product updated successfully", {
+          description: `${data.name} has been updated.`,
+        });
         router.push(`/inventory/${product.id}`);
         router.refresh();
+      } else if (result?.errors) {
+        Object.entries(result.errors).forEach(([key, messages]) => {
+          setError(key as keyof AddProductInputData, {
+            message: messages[0],
+          });
+        });
       } else if (result?.message) {
+        toast.error("Product update failed", {
+          description: result.message,
+        });
         setError("root", {
           message: result.message,
         });
       }
     } catch (error) {
-      console.error("Error updating product:", error);
+      const errorMessage =
+        "An unexpected error occurred while updating the product. Please try again later.";
+
       setError("root", {
         message: "An unexpected error occurred. Please try again.",
+      });
+      toast.error("Product update failed", {
+        description: errorMessage,
       });
     }
   };

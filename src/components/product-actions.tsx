@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteProduct } from "@/lib/actions/product";
+import { toast } from "sonner";
 
 export default function ProductActions({ productId }: { productId: string }) {
   const router = useRouter();
@@ -15,15 +16,20 @@ export default function ProductActions({ productId }: { productId: string }) {
     try {
       const result = await deleteProduct(productId);
       if (result.success) {
+        toast.success("Product deleted successfully!", {
+          description: "The product has been successfully deleted.",
+        });
         router.push("/inventory");
         router.refresh();
       } else {
-        throw new Error(
-          result.message || "An error occurred while deleting the product",
-        );
+        toast.error("Error deleting product", {
+          description: result.message || "Failed to delete product.",
+        });
       }
     } catch (error) {
-      console.error("Error deleting product:", error);
+      toast.error("Error deleting product", {
+        description: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setIsDeleting(false);
     }

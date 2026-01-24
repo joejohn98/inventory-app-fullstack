@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import {
   AddProductFormData,
@@ -28,16 +29,34 @@ const AddProductForm = () => {
       const result = await createProduct(data as AddProductFormData);
 
       if (result?.success) {
+        toast.success("Product created successfully", {
+          description: `${data.name} has been added to inventory.`,
+        });
         router.push("/inventory");
+      } else if (result?.errors) {
+        Object.entries(result.errors).forEach(([key, messages]) => {
+          setError(key as keyof AddProductInputData, {
+            message: messages[0],
+          });
+        });
       } else if (result?.message) {
         setError("root", {
           message: result.message,
         });
+        toast.error("Product creation failed", {
+          description: result.message,
+        });
       }
     } catch (error) {
-      console.error("Error creating product:", error);
+      const errorMessage =
+        "An unexpected error occurred while creating the product. Please try again later.";
+
       setError("root", {
         message: "An unexpected error occurred. Please try again.",
+      });
+
+      toast.error("Product creation failed", {
+        description: errorMessage,
       });
     }
   };
