@@ -48,13 +48,13 @@ const AddProductForm = () => {
         });
       }
     } catch (error) {
+      console.error("Error creating product:", error);
       const errorMessage =
         "An unexpected error occurred while creating the product. Please try again later.";
 
       setError("root", {
-        message: "An unexpected error occurred. Please try again.",
+        message: errorMessage,
       });
-
       toast.error("Product creation failed", {
         description: errorMessage,
       });

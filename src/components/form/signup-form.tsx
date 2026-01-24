@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { SignUpFormData, signupSchema } from "@/lib/validation";
 import { authClient } from "@/lib/auth-client";
-import SocialAuthButtons from "./auth/social-auth-buttons";
+import SocialAuthButtons from "@/components/auth/social-auth-buttons";
 
 const SignUpForm = () => {
   const {
@@ -44,19 +44,18 @@ const SignUpForm = () => {
       if (error) {
         setError("root", { message: error.message });
         toast.error("Sign up failed", {
-          description: error.message || "Failed to create account",
+          description: error.message || "Failed to sign up",
         });
         return;
       }
     } catch (error) {
+      console.error("Error signing up:", error);
       const errorMessage =
         "An unexpected error occurred while signing up. Please try again later.";
-      if (error instanceof Error) {
-        setError("root", { message: error.message });
-        toast.error("Sign up failed", {
-          description: errorMessage,
-        });
-      }
+      setError("root", { message: errorMessage });
+      toast.error("Sign up failed", {
+        description: errorMessage,
+      });
     }
   };
 
@@ -175,7 +174,7 @@ const SignUpForm = () => {
           <button
             disabled={isSubmitting}
             type="submit"
-            className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-600 rounded-md"
+            className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-600 rounded-md cursor-pointer hover:bg-purple-500"
           >
             {isSubmitting ? "Signing up..." : "Sign up"}
           </button>

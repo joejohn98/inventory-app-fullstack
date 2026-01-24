@@ -92,7 +92,6 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
         type: "server",
         message: "An unexpected error occurred. Please try again.",
       });
-
       toast.error("Failed to update settings", {
         description: "An unexpected error occurred. Please try again.",
       });

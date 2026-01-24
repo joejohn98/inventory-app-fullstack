@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const UserBlock = () => {
   const { data: sessionQuery } = authClient.useSession();
@@ -15,7 +16,7 @@ const UserBlock = () => {
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true);
-      await authClient.signOut({
+      const { data } = await authClient.signOut({
         fetchOptions: {
           onRequest: () => {
             setIsSigningOut(true);
@@ -25,10 +26,18 @@ const UserBlock = () => {
           },
         },
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error.message);
+
+      if (data?.success) {
+        toast.success("Signed out successfully", {
+          description: "You have been successfully signed out.",
+        });
+        router.push("/");
       }
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error("Sign out failed", {
+        description: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setIsSigningOut(false);
     }

@@ -78,11 +78,12 @@ const EditProductForm = ({ product }: EditProductFormProps) => {
         });
       }
     } catch (error) {
+      console.error("Error updating product:", error);
       const errorMessage =
         "An unexpected error occurred while updating the product. Please try again later.";
 
       setError("root", {
-        message: "An unexpected error occurred. Please try again.",
+        message: errorMessage,
       });
       toast.error("Product update failed", {
         description: errorMessage,

@@ -33,7 +33,7 @@ const SignInForm = () => {
       if (error) {
         setError("root", { message: error.message });
         toast.error("Sign in failed", {
-          description: error.message,
+          description: error.message || "Failed to sign in",
         });
         return;
       }
@@ -41,12 +41,10 @@ const SignInForm = () => {
       console.error("error submitting form", error);
       const errorMessage =
         "An unexpected error occurred while signing in. Please try again later.";
-      if (error instanceof Error) {
-        setError("root", { message: error.message });
-        toast.error("Sign in failed", {
-          description: errorMessage,
-        });
-      }
+      setError("root", { message: errorMessage });
+      toast.error("Sign in failed", {
+        description: errorMessage,
+      });
     }
   };
 
@@ -118,7 +116,7 @@ const SignInForm = () => {
 
           <button
             type="submit"
-            className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-600 rounded-md"
+            className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-600 rounded-md cursor-pointer hover:bg-purple-500"
           >
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
