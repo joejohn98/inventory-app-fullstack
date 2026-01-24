@@ -1,4 +1,5 @@
 import Sidebar from "@/components/sidebar";
+import PieChart from "@/components/pie-chart";
 import prisma from "@/lib/prisma";
 import { getUserSession } from "@/lib/session";
 import { TrendingUp } from "lucide-react";
@@ -62,10 +63,10 @@ const Dashboard = async () => {
 
   const inStockCount = allProducts.filter((p) => Number(p.stock) > 10).length;
   const outOfStockCount = allProducts.filter(
-    (p) => Number(p.stock) === 0
+    (p) => Number(p.stock) === 0,
   ).length;
   const lowStockCount = allProducts.filter(
-    (p) => Number(p.stock) >= 1 && Number(p.stock) <= 10
+    (p) => Number(p.stock) >= 1 && Number(p.stock) <= 10,
   ).length;
 
   const inStockPercentage =
@@ -75,6 +76,31 @@ const Dashboard = async () => {
   const lowStockPercentage =
     totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
 
+  // Department Distribution for Pie Chart
+  const departmentColors = {
+    Kitchen: "#f97316", // Orange
+    Electronics: "#3b82f6", // Blue
+    Clothing: "#a855f7", // Purple
+    Toys: "#10b981", // Green
+  };
+
+  const departmentDistribution = allProducts.reduce(
+    (acc, product) => {
+      const deptName = product.department.name;
+      acc[deptName] = (acc[deptName] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const pieChartData = Object.entries(departmentDistribution).map(
+    ([label, value]) => ({
+      label,
+      value,
+      color:
+        departmentColors[label as keyof typeof departmentColors] || "#64748b",
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,14 +111,14 @@ const Dashboard = async () => {
         <header className="mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
                 Dashboard
               </h2>
-              <p className="text-slate-600 mt-2">
+              <p className="text-gray-600 mt-2">
                 Welcome back! Here&#39;s an overview of your inventory.
               </p>
             </div>
-            <p className="text-slate-500 text-sm font-medium">
+            <p className="text-gray-500 text-sm font-medium">
               {new Date().toLocaleDateString("en-US", {
                 weekday: "long",
                 year: "numeric",
@@ -103,20 +129,20 @@ const Dashboard = async () => {
           </div>
         </header>
 
+        {/* Row 1: Key Metrics and Pie Chart */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Key Metrics */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
               Key Metrics
             </h2>
-            {/* Total Products */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-6">
+              {/* Total Products */}
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">
                   {totalProducts}
                 </div>
                 <div className="text-sm text-gray-600">Total Products</div>
-
                 <div className="flex items-center justify-center mt-1">
                   <span className="text-xs text-green-600">
                     +{totalProducts}
@@ -127,10 +153,9 @@ const Dashboard = async () => {
               {/* Total Value */}
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">
-                  ${Number(totalValue).toFixed(0).padStart(2, "0")}
+                  ${Number(totalValue).toFixed(0)}
                 </div>
-                <div className="text-sm text-gray-600">Total Products</div>
-
+                <div className="text-sm text-gray-600">Total Value</div>
                 <div className="flex items-center justify-center mt-1">
                   <span className="text-xs text-green-600">
                     +${Number(totalValue).toFixed(0)}
@@ -144,7 +169,6 @@ const Dashboard = async () => {
                   {totalDelivered}
                 </div>
                 <div className="text-sm text-gray-600">Total Delivered</div>
-
                 <div className="flex items-center justify-center mt-1">
                   <span className="text-xs text-green-600">
                     +{totalDelivered}
@@ -154,8 +178,12 @@ const Dashboard = async () => {
               </div>
             </div>
           </div>
+
+          {/* Department Distribution */}
+          <PieChart data={pieChartData} title="Department Distribution" />
         </section>
 
+        {/* Row 2: Low Stock and Efficiency */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Low Stock */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -169,10 +197,10 @@ const Dashboard = async () => {
                   .map((product) => (
                     <div
                       key={product.id}
-                      className="flex items-center justify-between border-b border-slate-100 pb-3"
+                      className="flex items-center justify-between border-b border-gray-100 pb-3"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="h-12 w-12 rounded-md overflow-hidden bg-slate-100">
+                        <div className="h-12 w-12 rounded-md overflow-hidden bg-gray-100">
                           <Image
                             src={product.imageUrl || "/No_Image_Available.jpg"}
                             width={100}
@@ -182,10 +210,10 @@ const Dashboard = async () => {
                           />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-800">
+                          <p className="font-medium text-gray-800">
                             {product.name}
                           </p>
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-gray-500">
                             {product.department.name}
                           </p>
                         </div>
@@ -205,17 +233,15 @@ const Dashboard = async () => {
                   ))}
               </div>
             ) : (
-              <p className="text-slate-500">No low stock items found.</p>
+              <p className="text-gray-500">No low stock items found.</p>
             )}
           </div>
 
           {/* Efficiency */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className=" text-lg font-semibold text-gray-900">
-                Efficiency
-              </h2>
-            </div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Efficiency
+            </h2>
             {/* Circular progress bar for In Stock percentage */}
             <div className="flex items-center justify-center">
               <div className="relative w-48 h-48">
