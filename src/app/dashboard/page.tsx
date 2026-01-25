@@ -13,7 +13,7 @@ const Dashboard = async () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Sidebar currentPath="/dashboard" />
-        <main className="ml-64 p-8">
+        <main className="lg:ml-64 p-4 md:p-8">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
             <h2 className="text-xl font-bold text-yellow-800">
               Authentication Required
@@ -106,7 +106,7 @@ const Dashboard = async () => {
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/dashboard" />
 
-      <main className="ml-64 p-8">
+      <main className="lg:ml-64 p-4 md:p-8">
         {/* Header */}
         <header className="mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

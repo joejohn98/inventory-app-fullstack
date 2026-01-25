@@ -32,7 +32,7 @@ const ProductDetails = async ({
     return (
       <div className="min-h-screen bg-gray-50">
         <Sidebar currentPath="/inventory" />
-        <main className="ml-64 p-4 md:p-8 flex flex-col items-center justify-center h-[70vh]">
+        <main className="lg:ml-64 p-4 md:p-8 flex flex-col items-center justify-center h-[70vh]">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center max-w-md">
             <AlertTriangle size={48} className="mx-auto text-yellow-500 mb-4" />
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -57,7 +57,7 @@ const ProductDetails = async ({
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/inventory" />
-      <main className="ml-64 p-4 md:p-8">
+      <main className="lg:ml-64 w-full p-5 md:p-8">
         <Link
           href="/inventory"
           className="inline-flex items-center text-gray-600 hover:text-purple-600 mb-6 transition-colors"

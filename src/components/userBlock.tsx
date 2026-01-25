@@ -89,7 +89,7 @@ const UserBlock = () => {
       <div>
         <button
           onClick={handleSignOut}
-          className="text-sm text-purple-400 hover:text-purple-300"
+          className="text-md lg:text-sm font-medium text-purple-400 hover:text-purple-300"
           disabled={isSigningOut}
         >
           {isSigningOut ? "Signing out..." : "Sign out"}

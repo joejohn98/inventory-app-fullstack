@@ -26,7 +26,7 @@ export default async function EditProductPage({
     return (
       <div className="min-h-screen bg-gray-50">
         <Sidebar currentPath="/inventory" />
-        <main className="ml-64 p-4 md:p-8 flex flex-col items-center justify-center h-[70vh]">
+        <main className="lg:ml-64 p-5 md:p-8 flex flex-col items-center justify-center h-[70vh]">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center max-w-md">
             <AlertTriangle size={48} className="mx-auto text-yellow-500 mb-4" />
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -56,7 +56,7 @@ export default async function EditProductPage({
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/inventory" />
-      <main className="ml-64 p-4 md:p-8">
+      <main className="lg:ml-64 p-5 md:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <EditProductForm product={modifiedProduct} />

@@ -32,7 +32,7 @@ const SettingsPage = async () => {
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/settings" />
 
-      <main className="ml-64 p-4 md:p-8">
+      <main className="lg:ml-64 p-5 md:p-8">
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center space-x-3 mb-2">

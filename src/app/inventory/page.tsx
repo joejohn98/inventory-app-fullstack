@@ -29,11 +29,10 @@ const Inventory = async () => {
     department: product.department.name,
   }));
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/inventory" />
-      <main className="ml-64 p-4 md:p-8">
+      <main className="lg:ml-64 p-5 md:p-8">
         <Products products={serializedProducts} />
       </main>
     </div>
