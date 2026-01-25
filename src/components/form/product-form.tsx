@@ -1,8 +1,14 @@
 "use client";
 
 import { Save, X } from "lucide-react";
-import { UseFormRegister, FieldErrors, UseFormHandleSubmit } from "react-hook-form";
+import {
+  UseFormRegister,
+  FieldErrors,
+  UseFormHandleSubmit,
+} from "react-hook-form";
+
 import { AddProductInputData } from "@/lib/validation";
+import { DEPARTMENTS } from "@/types/product";
 
 interface ProductFormProps {
   register: UseFormRegister<AddProductInputData>;
@@ -83,11 +89,11 @@ const ProductForm = ({
                     : "border-gray-200"
                 }`}
               >
-                <option value="">Select Department</option>
-                <option value="Kitchen">Kitchen</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Toys">Toys</option>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept.value} value={dept.value}>
+                    {dept.label}
+                  </option>
+                ))}
               </select>
               {errors.department && (
                 <p className="mt-1 text-sm text-rose-500">
