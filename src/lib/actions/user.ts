@@ -16,6 +16,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
   const session = await getUserSession();
   if (!session?.user?.id) {
     return {
+      success: false,
       message: "Unauthorized access. Please sign in.",
     };
   }
@@ -32,6 +33,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
 
   if (!validatedFields.success) {
     return {
+      success: false,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Please fix the errors below.",
     };
@@ -48,6 +50,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
 
       if (existingUser && existingUser.id !== userId) {
         return {
+          success: false,
           errors: {
             email: ["This email is already in use by another account."],
           },
@@ -62,11 +65,14 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
       if (image !== session.user.image) {
         const parsedUrl = validateImageUrl(image);
         if (!parsedUrl) {
-          return { message: "Invalid image URL. HTTPS required." };
+          return {
+            success: false,
+            message: "Invalid image URL. HTTPS required.",
+          };
         }
 
         if (isBlockedHost(parsedUrl.hostname)) {
-          return { message: "Image URL is not allowed." };
+          return { success: false, message: "Image URL is not allowed." };
         }
 
         try {
@@ -83,6 +89,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
         } catch (error) {
           console.error("Cloudinary Upload Error:", error);
           return {
+            success: false,
             message:
               "Failed to upload profile image. Ensure the URL is public.",
           };
@@ -104,6 +111,7 @@ export async function updateUserSettings(data: UpdateUserSettingsFormData) {
   } catch (error) {
     console.error("Database Error:", error);
     return {
+      success: false,
       message: "Database Error: Failed to update user settings.",
     };
   }

@@ -64,20 +64,20 @@ const SettingsForm = ({ user }: SettingsFormProps) => {
       const result = await updateUserSettings(data);
 
       if (result?.success) {
-        toast.success("Settings updated successfully!", {
+        toast.success(result.message || "Settings updated successfully!", {
           description: "Your account settings have been updated.",
         });
         setSuccessMessage(result.message || "Settings updated successfully!");
         setTimeout(() => {
           router.refresh();
         }, 1500);
-      } else if (result?.errors) {
+      } else if (!result?.success && result?.errors) {
         Object.entries(result.errors).forEach(([key, messages]) => {
           setError(key as keyof UpdateUserSettingsFormData, {
             message: messages[0],
           });
         });
-      } else if (result?.message) {
+      } else if (!result?.success && result?.message) {
         setError("root", {
           type: "server",
           message: result.message,

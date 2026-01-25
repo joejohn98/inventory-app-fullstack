@@ -13,6 +13,7 @@ export async function createProduct(data: AddProductFormData) {
   const session = await getUserSession();
   if (!session?.user?.id) {
     return {
+      success: false,
       message: "Unauthorized access. Please sign in.",
     };
   }
@@ -35,6 +36,7 @@ export async function createProduct(data: AddProductFormData) {
 
   if (!validatedFields.success) {
     return {
+      success: false,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Please fix the errors below.",
     };
@@ -60,12 +62,12 @@ export async function createProduct(data: AddProductFormData) {
     // Validate Image URL
     const parsedUrl = validateImageUrl(imageUrl);
     if (!parsedUrl) {
-      return { message: "Invalid image URL. HTTPS required." };
+      return { success: false, message: "Invalid image URL. HTTPS required." };
     }
 
     // Check if image URL is blocked
     if (isBlockedHost(parsedUrl.hostname)) {
-      return { message: "Image URL is not allowed." };
+      return { success: false, message: "Image URL is not allowed." };
     }
 
     try {
@@ -77,6 +79,7 @@ export async function createProduct(data: AddProductFormData) {
     } catch (error) {
       console.error("Cloudinary Upload Error:", error);
       return {
+        success: false,
         message:
           "Failed to upload product image. Ensure the URL is publicly accessible.",
       };
@@ -134,6 +137,7 @@ export async function createProduct(data: AddProductFormData) {
   } catch (error) {
     console.error("Database Error:", error);
     return {
+      success: false,
       message:
         "Database Error: Failed to create product. Ensure SKU is unique.",
     };
@@ -150,6 +154,7 @@ export async function updateProduct(
   const session = await getUserSession();
   if (!session?.user?.id) {
     return {
+      success: false,
       message: "Unauthorized access. Please sign in.",
     };
   }
@@ -171,6 +176,7 @@ export async function updateProduct(
 
   if (!validatedFields.success) {
     return {
+      success: false,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Please fix the errors below.",
     };
@@ -194,11 +200,11 @@ export async function updateProduct(
   if (imageUrl && !imageUrl.includes("cloudinary.com")) {
     const parsedUrl = validateImageUrl(imageUrl);
     if (!parsedUrl) {
-      return { message: "Invalid image URL. HTTPS required." };
+      return { success: false, message: "Invalid image URL. HTTPS required." };
     }
 
     if (isBlockedHost(parsedUrl.hostname)) {
-      return { message: "Image URL is not allowed." };
+      return { success: false, message: "Image URL is not allowed." };
     }
 
     try {
@@ -210,6 +216,7 @@ export async function updateProduct(
     } catch (error) {
       console.error("Cloudinary Upload Error:", error);
       return {
+        success: false,
         message: "Failed to upload product image.",
       };
     }
@@ -262,7 +269,10 @@ export async function updateProduct(
     });
   } catch (error) {
     console.error("Database Error:", error);
-    return { message: "Database Error: Failed to update product." };
+    return {
+      success: false,
+      message: "Database Error: Failed to update product.",
+    };
   }
 
   revalidatePath("/inventory");
@@ -274,6 +284,7 @@ export const deleteProduct = async (productId: string) => {
   const session = await getUserSession();
   if (!session?.user?.id) {
     return {
+      success: false,
       message: "Unauthorized access. Please sign in.",
     };
   }
@@ -284,7 +295,10 @@ export const deleteProduct = async (productId: string) => {
     });
   } catch (error) {
     console.error("Database Error:", error);
-    return { message: "Database Error: Failed to delete product." };
+    return {
+      success: false,
+      message: "Database Error: Failed to delete product.",
+    };
   }
 
   revalidatePath("/inventory");

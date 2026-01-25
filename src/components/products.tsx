@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
 
 import Pagination from "./pagination";
 import ProductCard from "./products/ProductCard";
@@ -18,7 +17,7 @@ interface ProductsProps {
 }
 
 const Products = ({ products }: ProductsProps) => {
-  // Filter/Sort State
+  // State
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [department, setDepartment] = useState("all");
@@ -32,68 +31,59 @@ const Products = ({ products }: ProductsProps) => {
   // Sync department from URL
   useEffect(() => {
     const deptParam = searchParams.get("department");
-    setDepartment(deptParam || "all");
+    if (deptParam) {
+      setDepartment(deptParam);
+    }
   }, [searchParams]);
 
   // Filter Functions
-  const searchFilter = useCallback(
-    (product: Product) => {
-      if (!searchTerm) return true;
-      const term = searchTerm.toLowerCase();
-      return (
-        product.name.toLowerCase().includes(term) ||
-        product.description?.toLowerCase().includes(term) ||
-        product.sku.toLowerCase().includes(term)
-      );
-    },
-    [searchTerm],
-  );
+  const searchFilter = (product: Product) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(term) ||
+      product.description?.toLowerCase().includes(term) ||
+      product.sku.toLowerCase().includes(term)
+    );
+  };
 
-  const departmentFilter = useCallback(
-    (product: Product) =>
-      department === "all" || product.department?.toLowerCase() === department,
-    [department],
-  );
+  const departmentFilter = (product: Product) => {
+    return (
+      department === "all" || product.department?.toLowerCase() === department
+    );
+  };
 
-  const stockFilter = useCallback(
-    (product: Product) => !lowStock || product.stock <= 10,
-    [lowStock],
-  );
+  const stockFilter = (product: Product) => {
+    return !lowStock || product.stock <= 10;
+  };
 
-  const sortProducts = useCallback(
-    (a: Product, b: Product) => {
-      let comparison = 0;
-      switch (sortBy) {
-        case "name":
-          comparison = a.name.localeCompare(b.name);
-          break;
-        case "price":
-          comparison = a.price - b.price;
-          break;
-        case "stock":
-          comparison = a.stock - b.stock;
-          break;
-      }
-      return sortOrder === "asc" ? comparison : -comparison;
-    },
-    [sortBy, sortOrder],
-  );
+  const sortProducts = (a: Product, b: Product) => {
+    let comparison = 0;
+    if (sortBy === "name") {
+      comparison = a.name.localeCompare(b.name);
+    } else if (sortBy === "price") {
+      comparison = a.price - b.price;
+    } else if (sortBy === "stock") {
+      comparison = a.stock - b.stock;
+    }
+    return sortOrder === "asc" ? comparison : -comparison;
+  };
 
   // Computed Values
-  const filteredProducts = useMemo(
-    () =>
-      products
-        .filter(searchFilter)
-        .filter(departmentFilter)
-        .filter(stockFilter)
-        .sort(sortProducts),
-    [products, searchFilter, departmentFilter, stockFilter, sortProducts],
-  );
+  const filteredProducts = useMemo(() => {
+    return products
+      .filter(searchFilter)
+      .filter(departmentFilter)
+      .filter(stockFilter)
+      .sort(sortProducts);
+  }, [products, searchTerm, department, lowStock, sortBy, sortOrder]);
 
-  const paginatedProducts = filteredProducts.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE,
-  );
+  const paginatedProducts = useMemo(() => {
+    return filteredProducts.slice(
+      (page - 1) * ITEMS_PER_PAGE,
+      page * ITEMS_PER_PAGE,
+    );
+  }, [filteredProducts, page]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 

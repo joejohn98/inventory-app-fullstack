@@ -29,17 +29,17 @@ const AddProductForm = () => {
       const result = await createProduct(data as AddProductFormData);
 
       if (result?.success) {
-        toast.success("Product created successfully", {
+        toast.success(result.message || "Product created successfully", {
           description: `${data.name} has been added to inventory.`,
         });
         router.push("/inventory");
-      } else if (result?.errors) {
+      } else if (!result.success && result?.errors) {
         Object.entries(result.errors).forEach(([key, messages]) => {
           setError(key as keyof AddProductInputData, {
             message: messages[0],
           });
         });
-      } else if (result?.message) {
+      } else if (!result?.success && result?.message) {
         setError("root", {
           message: result.message,
         });
