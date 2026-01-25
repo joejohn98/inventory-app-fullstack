@@ -32,7 +32,7 @@ export default async function EditProductPage({
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Product Not Found
             </h2>
-            <p className="text-slate-500 mb-6">
+            <p className="text--500 mb-6">
               The product you&apos;re looking for doesn&apos;t exist or has been
               removed.
             </p>

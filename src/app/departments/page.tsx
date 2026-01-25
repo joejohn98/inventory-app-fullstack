@@ -50,7 +50,7 @@ const Departments = async () => {
       <Sidebar currentPath="/departments" />
 
       <main className="flex flex-col lg:ml-64 p-5 md:p-8 space-y-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
           Departments
         </h2>
 
@@ -86,35 +86,35 @@ const Departments = async () => {
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     {dept.name}
                   </h3>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Total Stock:</span>
-                      <span className="font-medium text-slate-800">
+                      <span className="text-gray-600">Total Stock:</span>
+                      <span className="font-medium text-gray-800">
                         {totalStock} items
                       </span>
                     </div>
 
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Low Stock Items:</span>
-                      <span className="font-medium text-slate-800">
+                      <span className="text-gray-600">Low Stock Items:</span>
+                      <span className="font-medium text-gray-800">
                         {lowStockCount}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 px-6 py-3 border-t border-slate-200">
+                <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-slate-600">
+                    <span className="text-sm font-medium text-gray-600">
                       View Products
                     </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-slate-400 group-hover:translate-x-1 transition-transform"
+                      className="h-5 w-5 text-gray-400 group-hover:translate-x-1 transition-transform"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"

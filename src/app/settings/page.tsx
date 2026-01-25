@@ -12,7 +12,7 @@ const SettingsPage = async () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Sidebar currentPath="/settings" />
-        <main className="ml-64 p-8">
+        <main className="lg:ml-64 p-5 md:p-8">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
             <h2 className="text-xl font-bold text-yellow-800">
               Authentication Required
@@ -39,11 +39,11 @@ const SettingsPage = async () => {
             <div className="p-2 bg-purple-100 rounded-lg">
               <Settings className="w-6 h-6 text-purple-600" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
               Settings
             </h1>
           </div>
-          <p className="text-slate-600 ml-12">
+          <p className="text-gray-600 ml-12">
             Manage your account settings and preferences
           </p>
         </header>

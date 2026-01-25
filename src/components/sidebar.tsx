@@ -55,10 +55,10 @@ const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
   };
 
   const sidebarClasses = isMobile
-    ? `fixed inset-0 z-50 w-72 bg-slate-900 text-white p-6 shadow-xl transform ${
+    ? `fixed inset-0 z-50 w-72 bg-gray-900 text-white p-6 shadow-xl transform ${
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out`
-    : "w-64 fixed top-0 left-0 h-screen bg-slate-800 text-white p-6";
+    : "w-64 fixed top-0 left-0 h-screen bg-gray-800 text-white p-6";
 
   return (
     <>
