@@ -79,7 +79,7 @@ const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
         <div className="mb-8 flex justify-between items-center">
           <div className="flex items-center space-x-2 mb-4">
             <BarChart3 className="w-7 h-7" />
-            <span className="text-lg font-semibold">Inventory Hub</span>
+            <span className="text-xl font-semibold">Inventory Hub</span>
           </div>
           {isMobile && (
             <button
