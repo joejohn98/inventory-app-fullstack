@@ -28,13 +28,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link
-          rel="icon"
-          href="/inventory-logistics-warehouse-svgrepo-com.svg"
-        />
-        <title>Inventory Hub</title>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
