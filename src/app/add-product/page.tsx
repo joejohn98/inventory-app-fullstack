@@ -11,7 +11,7 @@ const AddProduct = async () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/add-product" />
-      <main className="ml-64 p-4 md:p-8">
+      <main className="lg:ml-64 p-5 md:p-8">
         <Link
           href="/inventory"
           className="mb-6 inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
