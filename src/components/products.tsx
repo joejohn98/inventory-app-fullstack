@@ -36,46 +36,47 @@ const Products = ({ products }: ProductsProps) => {
     }
   }, [searchParams]);
 
-  // Filter Functions
-  const searchFilter = (product: Product) => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      product.name.toLowerCase().includes(term) ||
-      product.description?.toLowerCase().includes(term) ||
-      product.sku.toLowerCase().includes(term)
-    );
-  };
-
-  const departmentFilter = (product: Product) => {
-    return (
-      department === "all" || product.department?.toLowerCase() === department
-    );
-  };
-
-  const stockFilter = (product: Product) => {
-    return !lowStock || product.stock <= 10;
-  };
-
-  const sortProducts = (a: Product, b: Product) => {
-    let comparison = 0;
-    if (sortBy === "name") {
-      comparison = a.name.localeCompare(b.name);
-    } else if (sortBy === "price") {
-      comparison = a.price - b.price;
-    } else if (sortBy === "stock") {
-      comparison = a.stock - b.stock;
-    }
-    return sortOrder === "asc" ? comparison : -comparison;
-  };
-
   // Computed Values
   const filteredProducts = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+
     return products
-      .filter(searchFilter)
-      .filter(departmentFilter)
-      .filter(stockFilter)
-      .sort(sortProducts);
+      .filter((product) => {
+        // Search filter
+        if (searchTerm) {
+          const matchesSearch =
+            product.name.toLowerCase().includes(term) ||
+            product.description?.toLowerCase().includes(term) ||
+            product.sku.toLowerCase().includes(term);
+          if (!matchesSearch) return false;
+        }
+
+        // Department filter
+        if (
+          department !== "all" &&
+          product.department?.toLowerCase() !== department
+        ) {
+          return false;
+        }
+
+        // Stock filter
+        if (lowStock && product.stock > 10) {
+          return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        let comparison = 0;
+        if (sortBy === "name") {
+          comparison = a.name.localeCompare(b.name);
+        } else if (sortBy === "price") {
+          comparison = a.price - b.price;
+        } else if (sortBy === "stock") {
+          comparison = a.stock - b.stock;
+        }
+        return sortOrder === "asc" ? comparison : -comparison;
+      });
   }, [products, searchTerm, department, lowStock, sortBy, sortOrder]);
 
   const paginatedProducts = useMemo(() => {
