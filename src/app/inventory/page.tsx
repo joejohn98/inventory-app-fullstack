@@ -1,11 +1,11 @@
 import Products from "@/components/products";
 import PageLayout from "@/components/layout/page-layout";
 import prisma from "@/lib/prisma";
-import { getUserSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 
 const Inventory = async () => {
-  const user = await getUserSession();
-  const userId = user?.user.id;
+  const session = await requireAuth();
+  const userId = session.user.id;
 
   const [totalCount, products] = await Promise.all([
     prisma.product.count({

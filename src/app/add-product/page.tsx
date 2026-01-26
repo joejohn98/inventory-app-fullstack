@@ -3,10 +3,10 @@ import { ArrowLeft } from "lucide-react";
 
 import PageLayout from "@/components/layout/page-layout";
 import AddProductForm from "@/components/form/add-product-form";
-import { getUserSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 
 const AddProduct = async () => {
-  await getUserSession();
+  await requireAuth();
 
   return (
     <PageLayout currentPath="/add-product">

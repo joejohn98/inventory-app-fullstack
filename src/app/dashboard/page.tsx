@@ -2,22 +2,13 @@ import { TrendingUp } from "lucide-react";
 import Image from "next/image";
 
 import prisma from "@/lib/prisma";
-import { getUserSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import PageLayout from "@/components/layout/page-layout";
-import AuthRequired from "@/components/ui/auth-required";
 import PieChart from "@/components/pie-chart";
 
 const Dashboard = async () => {
-  const user = await getUserSession();
-  const userId = user?.user.id;
-
-  if (!userId) {
-    return (
-      <PageLayout currentPath="/dashboard">
-        <AuthRequired resourceName="the dashboard" />
-      </PageLayout>
-    );
-  }
+  const session = await requireAuth();
+  const userId = session.user.id;
 
   const [totalProducts, allProducts] = await Promise.all([
     await prisma.product.count({

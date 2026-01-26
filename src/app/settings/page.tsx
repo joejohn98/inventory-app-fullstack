@@ -2,21 +2,11 @@ import { Settings } from "lucide-react";
 import Image from "next/image";
 
 import PageLayout from "@/components/layout/page-layout";
-import AuthRequired from "@/components/ui/auth-required";
 import SettingsForm from "@/components/form/settings-form";
-import { getUserSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 
 const SettingsPage = async () => {
-  const session = await getUserSession();
-
-  if (!session?.user) {
-    return (
-      <PageLayout currentPath="/settings">
-        <AuthRequired resourceName="settings" />
-      </PageLayout>
-    );
-  }
-
+  const session = await requireAuth();
   const user = session.user;
 
   return (

@@ -1,13 +1,13 @@
 import { ChefHat, Gamepad2, Laptop, Shirt } from "lucide-react";
 import Link from "next/link";
 
-import { getUserSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import PageLayout from "@/components/layout/page-layout";
 import prisma from "@/lib/prisma";
 
 const Departments = async () => {
-  const user = await getUserSession();
-  const userId = user?.user.id;
+  const session = await requireAuth();
+  const userId = session.user.id;
 
   const departments = await prisma.department.findMany({
     where: {
