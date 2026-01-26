@@ -80,9 +80,14 @@ const UserBlock = () => {
             initials
           )}
         </div>
-        <div>
-          <div className="text-sm font-medium">{name}</div>
-          <div className="text-xs text-gray-400">{user.email}</div>
+        <div className="min-w-0">
+          <div className="text-sm font-medium truncate">{name}</div>
+          <p
+            className="text-xs text-gray-400 truncate max-w-25"
+            title={user.email}
+          >
+            {user.email}
+          </p>
         </div>
       </div>
 

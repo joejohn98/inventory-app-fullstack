@@ -27,9 +27,11 @@ const SignInForm = () => {
         password,
         callbackURL: "/dashboard",
       });
-      toast.success("Signed in successfully", {
-        description: `Welcome back, ${data?.user.name || data?.user.email}!`,
-      });
+      if (data?.user) {
+        toast.success("Signed in successfully", {
+          description: `Welcome back, ${data?.user.name || data?.user.email}!`,
+        });
+      }
       if (error) {
         setError("root", { message: error.message });
         toast.error("Sign in failed", {
