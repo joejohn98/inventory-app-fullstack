@@ -16,7 +16,7 @@ function getStockBadge(stock: number) {
   }
   if (stock <= 10) {
     return (
-      <span className="absolute top-2 right-2 px-2 py-1 bg-rose-500 text-white text-xs font-medium rounded-md">
+      <span className="absolute top-2 right-2 px-2 py-1 bg-rose-600 text-white text-xs font-medium rounded-md">
         Low Stock
       </span>
     );
