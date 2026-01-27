@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 
@@ -34,7 +34,7 @@ async function main() {
       { name: "Clothing", userId: demoUserId },
       { name: "Electronics", userId: demoUserId },
       { name: "Kitchen", userId: demoUserId },
-    ]
+    ],
   });
 
   const supplier = await prisma.supplier.create({
