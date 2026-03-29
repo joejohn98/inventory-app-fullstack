@@ -8,7 +8,7 @@ import {
 } from "react-hook-form";
 
 import { AddProductInputData } from "@/lib/validation";
-import { DEPARTMENTS } from "@/types/product";
+import { PRODUCT_DEPARTMENTS } from "@/types/product";
 
 interface ProductFormProps {
   register: UseFormRegister<AddProductInputData>;
@@ -89,7 +89,7 @@ const ProductForm = ({
                     : "border-gray-200"
                 }`}
               >
-                {DEPARTMENTS.map((dept) => (
+                {PRODUCT_DEPARTMENTS.map((dept) => (
                   <option key={dept.value} value={dept.value}>
                     {dept.label}
                   </option>

@@ -45,6 +45,19 @@ const Departments = async () => {
     },
   };
 
+  if (departments.length === 0) {
+    return (
+      <PageLayout currentPath="/departments">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+          Departments
+        </h2>
+        <div className="flex flex-col items-center justify-center h-64">
+          <p className="text-gray-600">No departments found</p>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout currentPath="/departments">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">

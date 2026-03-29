@@ -25,8 +25,13 @@ export const ITEMS_PER_PAGE = 8;
 
 export const DEPARTMENTS = [
   { value: "all", label: "All Departments" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "clothing", label: "Clothing" },
-  { value: "toys", label: "Toys" },
-  { value: "electronics", label: "Electronics" },
+  { value: "Kitchen", label: "Kitchen" },
+  { value: "Clothing", label: "Clothing" },
+  { value: "Toys", label: "Toys" },
+  { value: "Electronics", label: "Electronics" },
 ] as const;
+
+// Departments for product forms (excludes "all" filter option)
+export const PRODUCT_DEPARTMENTS = DEPARTMENTS.filter(
+  (dept) => dept.value !== "all",
+);

@@ -54,7 +54,7 @@ const Products = ({ products }: ProductsProps) => {
         // Department filter
         if (
           department !== "all" &&
-          product.department?.toLowerCase() !== department
+          product.department?.toLowerCase() !== department.toLowerCase()
         ) {
           return false;
         }

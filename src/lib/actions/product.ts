@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
-import { Department } from "@/generated/prisma";
+
 import { AddProductFormData, addProductSchema } from "@/lib/validation";
 import { getUserSession } from "@/lib/session";
 import { isBlockedHost, validateImageUrl } from "../utils";
@@ -54,8 +54,6 @@ export async function createProduct(data: AddProductFormData) {
     totalDelivered,
   } = validatedFields.data;
 
-  const deptName = department as Department["name"];
-
   let cloudinaryProductImageUrl: string | null = null;
 
   if (imageUrl) {
@@ -92,13 +90,13 @@ export async function createProduct(data: AddProductFormData) {
       const dept = await tx.department.upsert({
         where: {
           name_userId: {
-            name: deptName,
+            name: department,
             userId: userId,
           },
         },
         update: {},
         create: {
-          name: deptName,
+          name: department,
           userId: userId,
         },
       });
@@ -136,10 +134,10 @@ export async function createProduct(data: AddProductFormData) {
     });
   } catch (error) {
     console.error("Database Error:", error);
+
     return {
       success: false,
-      message:
-        "Database Error: Failed to create product. Ensure SKU is unique.",
+      message: "Database Error: Failed to create product. Please try again.",
     };
   }
 
@@ -194,7 +192,6 @@ export async function updateProduct(
     totalDelivered,
   } = validatedFields.data;
 
-  const deptName = department as Department["name"];
   let cloudinaryProductImageUrl: string | null = imageUrl || null;
 
   if (imageUrl && !imageUrl.includes("cloudinary.com")) {
@@ -227,13 +224,13 @@ export async function updateProduct(
       const dept = await tx.department.upsert({
         where: {
           name_userId: {
-            name: deptName,
+            name: department,
             userId: userId,
           },
         },
         update: {},
         create: {
-          name: deptName,
+          name: department,
           userId: userId,
         },
       });
