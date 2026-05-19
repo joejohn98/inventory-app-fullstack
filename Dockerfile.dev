@@ -1,0 +1,24 @@
+FROM node:24-alpine AS development
+
+WORKDIR /app
+
+RUN apk add --no-cache openssl
+
+COPY package*.json ./
+
+COPY prisma ./prisma
+
+COPY prisma.config.ts ./
+
+# Provide a dummy DATABASE_URL for prisma generate during build
+# The real URL is provided at runtime via docker-compose environment
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV DATABASE_URL=${DATABASE_URL}
+
+RUN npm ci
+
+RUN npx prisma generate
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

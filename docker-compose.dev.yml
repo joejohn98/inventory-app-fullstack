@@ -1,0 +1,75 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: inventory-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      prisma-migrate:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory@db:5432/inventory_db
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+  db:
+    image: postgres:17-alpine
+    container_name: inventory-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  prisma-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: inventory-migrate-dev
+    command: npx prisma migrate dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory@db:5432/inventory_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: "no"
+
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: prisma-studio
+    command: npx prisma studio --port 5555 --browser none
+    depends_on:
+      db:
+        condition: service_healthy
+      prisma-migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory@db:5432/inventory_db
+    ports:
+      - "5555:5555"
+
+volumes:
+  postgres-data:
