@@ -2,15 +2,17 @@
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16.2.6-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2.3-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-7.2-2D3748?style=for-the-badge&logo=prisma)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?style=for-the-badge&logo=postgresql)
 
 **A modern, full-stack inventory management system built with Next.js 16 and React 19**
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Project Structure](#-project-structure) • [Screenshots](#-screenshots)
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Docker](#-docker) • [Project Structure](#-project-structure)
 
 </div>
 
@@ -22,6 +24,7 @@
 
 - **Multiple Auth Methods**: Email/password registration and social login (GitHub, Google)
 - **Secure Sessions**: Session-based authentication powered by Better Auth
+- **Email Verification**: Verification tokens stored and managed via dedicated schema model
 - **Protected Routes**: Server-side session validation for all protected pages
 - **Form Validation**: Comprehensive client and server-side validation with Zod
 
@@ -41,11 +44,12 @@
 - **Pagination**: Efficient browsing with paginated product lists
 - **Low Stock Filter**: Quick access to items needing restocking
 
-### 🏢 Department Organization
+### 🏢 Department & Supplier Management
 
-- **Category Management**: Organize products into Kitchen, Electronics, Clothing, and Toys
+- **Dynamic Departments**: Create and manage custom departments per user (relational model, not a fixed enum)
+- **Supplier Tracking**: Manage suppliers with name, email, phone, and address
 - **Department Overview**: Visual cards showing stock levels per department
-- **Quick Navigation**: Jump directly to department-filtered inventory views
+- **User-Scoped Data**: All departments and suppliers are isolated per user account
 
 ### ⚙️ User Settings
 
@@ -65,34 +69,38 @@
 
 ### Frontend
 
-| Technology              | Version | Purpose                         |
-| ----------------------- | ------- | ------------------------------- |
-| **Next.js**             | 16.1.1  | React framework with App Router |
-| **React**               | 19.2.3  | UI library with latest features |
-| **TypeScript**          | 5.x     | Type-safe development           |
-| **TailwindCSS**         | 4.x     | Utility-first styling           |
-| **Lucide React**        | 0.562.0 | Beautiful icon library          |
-| **React Hook Form**     | 7.70.0  | Performant form handling        |
-| **Sonner**              | 2.0.7   | Toast notifications             |
-| **React Google Charts** | 5.2.1   | Data visualization              |
+| Technology              | Version  | Purpose                         |
+| ----------------------- | -------- | ------------------------------- |
+| **Next.js**             | ^16.2.6  | React framework with App Router |
+| **React**               | 19.2.3   | UI library with latest features |
+| **TypeScript**          | 5.x      | Type-safe development           |
+| **TailwindCSS**         | 4.x      | Utility-first styling           |
+| **Lucide React**        | ^0.562.0 | Beautiful icon library          |
+| **React Hook Form**     | ^7.70.0  | Performant form handling        |
+| **Sonner**              | ^2.0.7   | Toast notifications             |
+| **React Google Charts** | ^5.2.1   | Data visualization              |
 
 ### Backend
 
-| Technology      | Version | Purpose                 |
-| --------------- | ------- | ----------------------- |
-| **Prisma**      | 7.2.0   | Type-safe database ORM  |
-| **PostgreSQL**  | -       | Relational database     |
-| **Better Auth** | 1.4.10  | Authentication solution |
-| **Zod**         | 4.3.5   | Schema validation       |
-| **Cloudinary**  | 2.8.0   | Image hosting & CDN     |
+| Technology            | Version  | Purpose                               |
+| --------------------- | -------- | ------------------------------------- |
+| **Prisma**            | ^7.2.0   | Type-safe database ORM                |
+| **@prisma/adapter-pg**| ^7.2.0   | Native PostgreSQL driver adapter      |
+| **PostgreSQL**        | 17       | Relational database                   |
+| **Better Auth**       | ^1.4.10  | Authentication solution               |
+| **Zod**               | ^4.3.5   | Schema validation                     |
+| **Cloudinary**        | ^2.8.0   | Image hosting & CDN                   |
 
-### Developer Experience
+### Infrastructure & Developer Experience
 
-| Technology               | Purpose                 |
-| ------------------------ | ----------------------- |
-| **ESLint**               | Code linting            |
-| **Babel React Compiler** | Automatic optimizations |
-| **PostCSS**              | CSS processing          |
+| Technology               | Purpose                         |
+| ------------------------ | ------------------------------- |
+| **Docker**               | Containerised development & deployment |
+| **Docker Compose**       | Multi-service orchestration     |
+| **ESLint**               | Code linting                    |
+| **Babel React Compiler** | Automatic optimizations         |
+| **PostCSS**              | CSS processing                  |
+| **ts-node**              | TypeScript seed script runner   |
 
 ---
 
@@ -102,15 +110,15 @@
 
 - **Node.js** 18.x or higher
 - **npm** or **yarn** or **pnpm**
-- **PostgreSQL** database (local or hosted)
+- **PostgreSQL** database (local or hosted) — or use Docker (see below)
 - **Cloudinary** account for image uploads
 
-### Installation
+### Installation (Local)
 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/inventory-fullstack.git
+   git clone https://github.com/joejohn98/inventory-fullstack.git
    cd inventory-fullstack
    ```
 
@@ -118,11 +126,16 @@
 
    ```bash
    npm install
+   # Prisma client is auto-generated via the postinstall script
    ```
 
 3. **Set up environment variables**
 
-   Create a `.env` file in the root directory:
+   Copy the example file and fill in your values:
+
+   ```bash
+   cp .env.example .env
+   ```
 
    ```env
    # Database
@@ -147,14 +160,11 @@
 4. **Set up the database**
 
    ```bash
-   # Generate Prisma client
-   npx prisma generate
-
    # Run migrations
    npx prisma migrate dev
 
    # (Optional) Seed the database
-   npm run db:seed
+   npx prisma db seed
    ```
 
 5. **Start the development server**
@@ -169,13 +179,58 @@
 
 ---
 
+## 🐳 Docker
+
+The project includes full Docker support for both local development and production deployment.
+
+### Development (with local PostgreSQL)
+
+The dev stack uses `docker-compose.dev.yml` and spins up:
+- **`app`** — Next.js dev server with hot-reload (volume-mounted source)
+- **`db`** — PostgreSQL 17 with a health check
+- **`prisma-migrate`** — One-shot migration runner (waits for DB to be healthy)
+- **`prisma-studio`** — Prisma Studio GUI at `http://localhost:5555`
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+The app will be available at **http://localhost:3000** and Prisma Studio at **http://localhost:5555**.
+
+> **Note:** All environment variables (OAuth keys, Cloudinary, etc.) are read from your `.env` file. The `DATABASE_URL` is overridden inside Docker to point at the containerised `db` service.
+
+### Production
+
+The production stack (`docker-compose.yml`) targets an **external managed database** (e.g. Neon, Supabase, Railway). No database container is included.
+
+1. Ensure your `.env` contains a valid production `DATABASE_URL`.
+2. Build and run:
+
+   ```bash
+   docker compose up --build -d
+   ```
+
+A `prisma-migrate` service runs `prisma migrate deploy` before the app starts, ensuring the schema is always up to date.
+
+#### Production Dockerfile highlights
+
+The production `Dockerfile` is a **3-stage build**:
+
+| Stage      | Base Image       | Purpose                                     |
+| ---------- | ---------------- | ------------------------------------------- |
+| `deps`     | node:24-alpine   | Install deps & generate Prisma client       |
+| `builder`  | node:24-alpine   | Build the Next.js application               |
+| `runner`   | node:24-alpine   | Lean runtime image (non-root `nextjs` user) |
+
+---
+
 ## 📁 Project Structure
 
 ```
 inventory-fullstack/
 ├── prisma/
-│   ├── migrations/          # Database migrations
-│   ├── schema.prisma        # Database schema
+│   ├── migrations/          # Database migration history
+│   ├── schema.prisma        # Database schema (relational models)
 │   └── seed.ts              # Database seeding script
 │
 ├── public/
@@ -187,7 +242,7 @@ inventory-fullstack/
 │   │   │   ├── sign-in/     # Sign in page
 │   │   │   └── sign-up/     # Sign up page
 │   │   ├── add-product/     # Add new product page
-│   │   ├── api/             # API routes
+│   │   ├── api/             # API routes (Better Auth handler)
 │   │   ├── dashboard/       # Main dashboard
 │   │   ├── departments/     # Department overview
 │   │   ├── inventory/       # Product inventory
@@ -216,16 +271,17 @@ inventory-fullstack/
 │   │   ├── sidebar.tsx      # Navigation sidebar
 │   │   └── userBlock.tsx    # User info component
 │   │
-│   ├── generated/           # Prisma generated types
+│   ├── generated/
+│   │   └── prisma/          # Prisma generated client (custom output path)
 │   │
 │   ├── lib/
 │   │   ├── actions/         # Server Actions
 │   │   │   ├── product.ts   # Product CRUD actions
-│   │   │   └── user.ts      # User actions
+│   │   │   └── user.ts      # User profile actions
 │   │   ├── auth.ts          # Better Auth config
 │   │   ├── auth-client.ts   # Auth client
 │   │   ├── cloudinary.ts    # Cloudinary config
-│   │   ├── prisma.ts        # Prisma client
+│   │   ├── prisma.ts        # Prisma client (pg driver adapter)
 │   │   ├── session.ts       # Session utilities
 │   │   ├── utils.ts         # Helper functions
 │   │   └── validation.ts    # Zod schemas
@@ -233,12 +289,16 @@ inventory-fullstack/
 │   └── types/
 │       └── product.ts       # TypeScript types
 │
-├── .env                     # Environment variables
+├── .dockerignore            # Docker build ignore rules
+├── .env.example             # Environment variable template
+├── Dockerfile               # Production multi-stage build
+├── Dockerfile.dev           # Development image
+├── docker-compose.yml       # Production Compose (external DB)
+├── docker-compose.dev.yml   # Dev Compose (local PostgreSQL + Prisma Studio)
 ├── next.config.ts           # Next.js configuration
 ├── package.json             # Dependencies & scripts
-├── prisma.config.ts         # Prisma configuration
+├── prisma.config.ts         # Prisma CLI configuration (datasource URL)
 ├── postcss.config.mjs       # PostCSS configuration
-├── tailwind.config.ts       # Tailwind configuration
 └── tsconfig.json            # TypeScript configuration
 ```
 
@@ -246,54 +306,70 @@ inventory-fullstack/
 
 ## 📊 Database Schema
 
-The application uses a multi-tenant architecture where each user has isolated data:
+The application uses a **per-user, multi-tenant** architecture where all data is scoped to the authenticated user. Departments and Suppliers are **relational models** (not hard-coded enums), giving users full flexibility to create and manage their own categories.
 
 ### Core Models
 
-```prisma
-User          # User accounts with auth data
-├── Session   # User sessions
-├── Account   # OAuth provider accounts
-├── Product   # User's products (many)
-├── Department # User's departments (many)
-└── Supplier  # User's suppliers (many)
+```
+User
+├── Session[]       — Active user sessions
+├── Account[]       — OAuth provider links (GitHub, Google)
+├── Verification[]  — Email verification tokens (managed by Better Auth)
+├── Product[]       — User-owned products
+├── Department[]    — User-created departments (e.g. Kitchen, Electronics)
+└── Supplier[]      — User-managed suppliers
+
+Department
+├── id, name, userId
+└── Product[]       — Products in this department
+
+Supplier
+├── id, name, email?, phone?, address?, userId
+└── Product[]       — Products from this supplier
 
 Product
-├── name, description, price, stock, sku
-├── imageUrl (Cloudinary)
-├── delivered (total delivered count)
-├── Department (relation)
-└── Supplier (relation)
-
-Department (Enum)
-├── Kitchen
-├── Electronics
-├── Clothing
-└── Toys
+├── id, name, description?, price, stock, delivered, sku, imageUrl?
+├── userId          — Owner
+├── departmentId    — FK → Department
+└── supplierId      — FK → Supplier
 ```
+
+> **SKU uniqueness** is enforced per user (`@@unique([sku, userId])`). Department and Supplier names are also unique per user.
 
 ---
 
 ## 📜 Available Scripts
 
-| Command                  | Description              |
-| ------------------------ | ------------------------ |
-| `npm run dev`            | Start development server |
-| `npm run build`          | Build for production     |
-| `npm run start`          | Start production server  |
-| `npm run lint`           | Run ESLint               |
-| `npx prisma studio`      | Open Prisma Studio GUI   |
-| `npx prisma migrate dev` | Run database migrations  |
-| `npx prisma generate`    | Generate Prisma client   |
+| Command                       | Description                          |
+| ----------------------------- | ------------------------------------ |
+| `npm run dev`                 | Start development server             |
+| `npm run build`               | Build for production                 |
+| `npm run start`               | Start production server              |
+| `npm run lint`                | Run ESLint                           |
+| `npx prisma migrate dev`      | Run & generate a new migration       |
+| `npx prisma migrate deploy`   | Apply pending migrations (prod)      |
+| `npx prisma db seed`          | Seed the database                    |
+| `npx prisma generate`         | Regenerate Prisma client             |
+| `npx prisma studio`           | Open Prisma Studio GUI               |
+
+### Docker Commands
+
+| Command                                                    | Description                        |
+| ---------------------------------------------------------- | ---------------------------------- |
+| `docker compose -f docker-compose.dev.yml up --build`      | Start full dev stack               |
+| `docker compose -f docker-compose.dev.yml down -v`         | Stop dev stack & remove volumes    |
+| `docker compose up --build -d`                             | Start production stack             |
+| `docker compose down`                                      | Stop production stack              |
 
 ---
 
 ## 🔒 Authentication Flow
 
-1. **Registration**: Users can sign up with email/password or OAuth (GitHub/Google)
+1. **Registration**: Users sign up with email/password or OAuth (GitHub/Google)
 2. **Validation**: Passwords require uppercase, lowercase, numbers, and special characters
-3. **Session Management**: Sessions are stored in the database with automatic expiry
-4. **Protected Routes**: All app routes verify session before rendering
+3. **Email Verification**: Verification tokens are stored in the `verification` table and managed automatically by Better Auth
+4. **Session Management**: Sessions are stored in the database with automatic expiry
+5. **Protected Routes**: All app routes verify the session server-side before rendering
 
 ---
 
@@ -315,7 +391,8 @@ Department (Enum)
 - **Session Verification**: Server-side session checks on every request
 - **Secure Password Hashing**: Handled by Better Auth
 - **CSRF Protection**: Built into Next.js Server Actions
-- **Database Constraints**: Unique constraints to prevent duplicates
+- **Database Constraints**: Unique constraints to prevent duplicate SKUs, departments, and suppliers
+- **Non-root Container**: Production Docker image runs as a dedicated `nextjs` user
 
 ---
 
