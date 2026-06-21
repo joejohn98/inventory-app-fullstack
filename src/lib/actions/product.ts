@@ -279,7 +279,9 @@ export async function updateProduct(
 
 export const deleteProduct = async (productId: string) => {
   const session = await getUserSession();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     return {
       success: false,
       message: "Unauthorized access. Please sign in.",
@@ -288,7 +290,7 @@ export const deleteProduct = async (productId: string) => {
 
   try {
     await prisma.product.delete({
-      where: { id: productId },
+      where: { id: productId, userId },
     });
   } catch (error) {
     console.error("Database Error:", error);
