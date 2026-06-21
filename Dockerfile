@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 
-# Dummy URL so prisma generate succeeds during build (no DB connection needed)
+
 ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ENV DATABASE_URL=${DATABASE_URL}
 
@@ -51,7 +51,7 @@ RUN addgroup -S nodejs && \
 
 COPY --chown=nextjs:nodejs package*.json ./
 
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
