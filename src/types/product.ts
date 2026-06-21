@@ -21,7 +21,6 @@ export interface ProductFilterState {
   page: number;
 }
 
-export const ITEMS_PER_PAGE = 8;
 
 export const DEPARTMENTS = [
   { value: "all", label: "All Departments" },
