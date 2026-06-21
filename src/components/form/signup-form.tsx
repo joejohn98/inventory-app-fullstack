@@ -38,9 +38,6 @@ const SignUpForm = () => {
           },
         },
       );
-      toast.success("Account created successfully", {
-        description: `Welcome ${data?.user.name || data?.user.email}!`,
-      });
       if (error) {
         setError("root", { message: error.message });
         toast.error("Sign up failed", {
@@ -48,6 +45,9 @@ const SignUpForm = () => {
         });
         return;
       }
+      toast.success("Account created successfully", {
+        description: `Welcome ${data?.user.name || data?.user.email}!`,
+      });
     } catch (error) {
       console.error("Error signing up:", error);
       const errorMessage =
