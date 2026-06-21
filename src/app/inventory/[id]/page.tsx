@@ -12,16 +12,21 @@ import {
 } from "lucide-react";
 import ProductActions from "@/components/product-actions";
 import PageLayout from "@/components/layout/page-layout";
+import { requireAuth } from "@/lib/session";
 
 const ProductDetails = async ({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) => {
+  const session = await requireAuth();
+
+  const userId = session.user.id;
+
   const { id } = await params;
 
   const product = await prisma.product.findUnique({
-    where: { id },
+    where: { id, userId },
     include: {
       department: true,
       supplier: true,
