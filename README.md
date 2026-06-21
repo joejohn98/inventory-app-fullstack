@@ -24,6 +24,7 @@
 
 - **Multiple Auth Methods**: Email/password registration and social login (GitHub, Google)
 - **Secure Sessions**: Session-based authentication powered by Better Auth
+- **Manual Sign-In Flow**: `autoSignIn` is disabled — after registration, users are redirected to the sign-in page
 - **Email Verification**: Verification tokens stored and managed via dedicated schema model
 - **Protected Routes**: Server-side session validation for all protected pages
 - **Form Validation**: Comprehensive client and server-side validation with Zod
@@ -38,7 +39,7 @@
 ### 📦 Product Management
 
 - **CRUD Operations**: Create, read, update, and delete products with ease
-- **Image Uploads**: Cloudinary integration for product image storage
+- **Image Uploads**: Cloudinary integration for product image storage and CDN delivery
 - **Smart Filtering**: Search by name, description, or SKU
 - **Advanced Sorting**: Sort by name, price, or stock quantity
 - **Pagination**: Efficient browsing with paginated product lists
@@ -75,32 +76,32 @@
 | **React**               | 19.2.3   | UI library with latest features |
 | **TypeScript**          | 5.x      | Type-safe development           |
 | **TailwindCSS**         | 4.x      | Utility-first styling           |
-| **Lucide React**        | ^0.562.0 | Beautiful icon library          |
+| **Lucide React**        | ^0.562.0 | Icon library                    |
 | **React Hook Form**     | ^7.70.0  | Performant form handling        |
 | **Sonner**              | ^2.0.7   | Toast notifications             |
 | **React Google Charts** | ^5.2.1   | Data visualization              |
 
 ### Backend
 
-| Technology            | Version  | Purpose                               |
-| --------------------- | -------- | ------------------------------------- |
-| **Prisma**            | ^7.2.0   | Type-safe database ORM                |
-| **@prisma/adapter-pg**| ^7.2.0   | Native PostgreSQL driver adapter      |
-| **PostgreSQL**        | 17       | Relational database                   |
-| **Better Auth**       | ^1.4.10  | Authentication solution               |
-| **Zod**               | ^4.3.5   | Schema validation                     |
-| **Cloudinary**        | ^2.8.0   | Image hosting & CDN                   |
+| Technology             | Version | Purpose                          |
+| ---------------------- | ------- | -------------------------------- |
+| **Prisma**             | ^7.2.0  | Type-safe database ORM           |
+| **@prisma/adapter-pg** | ^7.2.0  | Native PostgreSQL driver adapter |
+| **PostgreSQL**         | 17      | Relational database              |
+| **Better Auth**        | ^1.4.10 | Authentication solution          |
+| **Zod**                | ^4.3.5  | Schema validation                |
+| **Cloudinary**         | ^2.8.0  | Image hosting & CDN              |
 
 ### Infrastructure & Developer Experience
 
-| Technology               | Purpose                         |
-| ------------------------ | ------------------------------- |
+| Technology               | Purpose                               |
+| ------------------------ | ------------------------------------- |
 | **Docker**               | Containerised development & deployment |
-| **Docker Compose**       | Multi-service orchestration     |
-| **ESLint**               | Code linting                    |
-| **Babel React Compiler** | Automatic optimizations         |
-| **PostCSS**              | CSS processing                  |
-| **ts-node**              | TypeScript seed script runner   |
+| **Docker Compose**       | Multi-service orchestration           |
+| **ESLint**               | Code linting                          |
+| **Babel React Compiler** | Automatic React optimizations         |
+| **PostCSS**              | CSS processing                        |
+| **ts-node**              | TypeScript seed script runner         |
 
 ---
 
@@ -188,7 +189,7 @@ The project includes full Docker support for both local development and producti
 The dev stack uses `docker-compose.dev.yml` and spins up:
 - **`app`** — Next.js dev server with hot-reload (volume-mounted source)
 - **`db`** — PostgreSQL 17 with a health check
-- **`prisma-migrate`** — One-shot migration runner (waits for DB to be healthy)
+- **`prisma-migrate`** — One-shot migration runner (`prisma migrate dev`, waits for DB to be healthy)
 - **`prisma-studio`** — Prisma Studio GUI at `http://localhost:5555`
 
 ```bash
@@ -197,7 +198,7 @@ docker compose -f docker-compose.dev.yml up --build
 
 The app will be available at **http://localhost:3000** and Prisma Studio at **http://localhost:5555**.
 
-> **Note:** All environment variables (OAuth keys, Cloudinary, etc.) are read from your `.env` file. The `DATABASE_URL` is overridden inside Docker to point at the containerised `db` service.
+> **Note:** All environment variables (OAuth keys, Cloudinary, etc.) are read from your `.env` file. The `DATABASE_URL` is overridden inside Docker to point at the containerised `db` service (`postgresql://inventory:inventory@db:5432/inventory_db`).
 
 ### Production
 
@@ -216,11 +217,13 @@ A `prisma-migrate` service runs `prisma migrate deploy` before the app starts, e
 
 The production `Dockerfile` is a **3-stage build**:
 
-| Stage      | Base Image       | Purpose                                     |
-| ---------- | ---------------- | ------------------------------------------- |
-| `deps`     | node:24-alpine   | Install deps & generate Prisma client       |
-| `builder`  | node:24-alpine   | Build the Next.js application               |
-| `runner`   | node:24-alpine   | Lean runtime image (non-root `nextjs` user) |
+| Stage     | Base Image     | Purpose                                                                           |
+| --------- | -------------- | --------------------------------------------------------------------------------- |
+| `deps`    | node:24-alpine | Install all deps & run `prisma generate` (uses a build-arg dummy `DATABASE_URL`) |
+| `builder` | node:24-alpine | Build the Next.js application in standalone output mode                           |
+| `runner`  | node:24-alpine | Lean runtime image — runs as non-root `nextjs` user, installs prod deps with `--ignore-scripts` |
+
+> The generated Prisma client is output to `src/generated/prisma` and is explicitly copied into the runner stage.
 
 ---
 
@@ -238,64 +241,71 @@ inventory-fullstack/
 │
 ├── src/
 │   ├── app/                 # Next.js App Router
-│   │   ├── (auth)/          # Auth route group
-│   │   │   ├── sign-in/     # Sign in page
-│   │   │   └── sign-up/     # Sign up page
+│   │   ├── (auth)/          # Auth route group (no shared layout)
+│   │   │   ├── sign-in/     # Sign-in page
+│   │   │   └── sign-up/     # Sign-up page
 │   │   ├── add-product/     # Add new product page
 │   │   ├── api/             # API routes (Better Auth handler)
-│   │   ├── dashboard/       # Main dashboard
-│   │   ├── departments/     # Department overview
-│   │   ├── inventory/       # Product inventory
-│   │   │   └── [id]/        # Product detail & edit
-│   │   ├── settings/        # User settings
+│   │   ├── dashboard/       # Main dashboard with analytics
+│   │   ├── departments/     # Department overview page
+│   │   ├── inventory/       # Product inventory list
+│   │   │   └── [id]/        # Product detail & edit page
+│   │   ├── settings/        # User settings page
+│   │   ├── error.tsx        # Root error boundary
 │   │   ├── globals.css      # Global styles
 │   │   ├── layout.tsx       # Root layout
-│   │   └── page.tsx         # Landing page
+│   │   └── page.tsx         # Landing / redirect page
 │   │
 │   ├── components/
-│   │   ├── auth/            # Auth-related components
+│   │   ├── auth/            # Auth-related components (social auth buttons)
 │   │   ├── form/            # Form components
-│   │   │   ├── add-product-form.tsx
-│   │   │   └── settings-form.tsx
-│   │   ├── layout/          # Layout components
-│   │   ├── products/        # Product-related components
+│   │   │   ├── add-product-form.tsx   # Wrapper for new product
+│   │   │   ├── edit-product-form.tsx  # Wrapper for editing a product
+│   │   │   ├── product-form.tsx       # Shared product form (add & edit)
+│   │   │   ├── settings-form.tsx      # User settings form
+│   │   │   ├── signin-form.tsx        # Sign-in form
+│   │   │   └── signup-form.tsx        # Sign-up form
+│   │   ├── layout/
+│   │   │   └── page-layout.tsx        # Shared page layout wrapper
+│   │   ├── products/        # Product-specific components
 │   │   │   ├── ProductCard.tsx
 │   │   │   ├── ProductFilters.tsx
 │   │   │   ├── ProductSearchBar.tsx
 │   │   │   └── ProductEmptyState.tsx
-│   │   ├── ui/              # Reusable UI components
-│   │   ├── pagination.tsx   # Pagination component
-│   │   ├── pie-chart.tsx    # Chart component
-│   │   ├── product-actions.tsx  # Edit/Delete actions
-│   │   ├── products.tsx     # Product list container
-│   │   ├── sidebar.tsx      # Navigation sidebar
-│   │   └── userBlock.tsx    # User info component
+│   │   ├── ui/
+│   │   │   └── auth-required.tsx      # Auth guard UI component
+│   │   ├── pagination.tsx             # Pagination component
+│   │   ├── pie-chart.tsx              # Department pie chart
+│   │   ├── product-actions.tsx        # Edit/Delete action buttons
+│   │   ├── products.tsx               # Product list container
+│   │   ├── sidebar.tsx                # Navigation sidebar
+│   │   └── userBlock.tsx              # User info block
 │   │
 │   ├── generated/
 │   │   └── prisma/          # Prisma generated client (custom output path)
 │   │
 │   ├── lib/
-│   │   ├── actions/         # Server Actions
+│   │   ├── actions/         # Next.js Server Actions
 │   │   │   ├── product.ts   # Product CRUD actions
 │   │   │   └── user.ts      # User profile actions
-│   │   ├── auth.ts          # Better Auth config
-│   │   ├── auth-client.ts   # Auth client
-│   │   ├── cloudinary.ts    # Cloudinary config
+│   │   ├── auth.ts          # Better Auth server config (email + GitHub + Google)
+│   │   ├── auth-client.ts   # Better Auth browser client
+│   │   ├── cloudinary.ts    # Cloudinary SDK config
 │   │   ├── prisma.ts        # Prisma client (pg driver adapter)
-│   │   ├── session.ts       # Session utilities
-│   │   ├── utils.ts         # Helper functions
-│   │   └── validation.ts    # Zod schemas
+│   │   ├── session.ts       # Session helper utilities
+│   │   ├── utils.ts         # General helper functions
+│   │   └── validation.ts    # Zod schemas for all forms
 │   │
 │   └── types/
-│       └── product.ts       # TypeScript types
+│       └── product.ts       # Shared TypeScript types
 │
 ├── .dockerignore            # Docker build ignore rules
 ├── .env.example             # Environment variable template
-├── Dockerfile               # Production multi-stage build
+├── Dockerfile               # Production 3-stage build
 ├── Dockerfile.dev           # Development image
 ├── docker-compose.yml       # Production Compose (external DB)
 ├── docker-compose.dev.yml   # Dev Compose (local PostgreSQL + Prisma Studio)
-├── next.config.ts           # Next.js configuration
+├── next.config.ts           # Next.js config (standalone output, React Compiler, image domains)
 ├── package.json             # Dependencies & scripts
 ├── prisma.config.ts         # Prisma CLI configuration (datasource URL)
 ├── postcss.config.mjs       # PostCSS configuration
@@ -328,10 +338,10 @@ Supplier
 └── Product[]       — Products from this supplier
 
 Product
-├── id, name, description?, price, stock, delivered, sku, imageUrl?
+├── id, name, description?, price (Decimal 10,2), stock, delivered, sku, imageUrl?
 ├── userId          — Owner
-├── departmentId    — FK → Department
-└── supplierId      — FK → Supplier
+├── departmentId    — FK → Department (Restrict on delete)
+└── supplierId      — FK → Supplier (Restrict on delete)
 ```
 
 > **SKU uniqueness** is enforced per user (`@@unique([sku, userId])`). Department and Supplier names are also unique per user.
@@ -340,36 +350,37 @@ Product
 
 ## 📜 Available Scripts
 
-| Command                       | Description                          |
-| ----------------------------- | ------------------------------------ |
-| `npm run dev`                 | Start development server             |
-| `npm run build`               | Build for production                 |
-| `npm run start`               | Start production server              |
-| `npm run lint`                | Run ESLint                           |
-| `npx prisma migrate dev`      | Run & generate a new migration       |
-| `npx prisma migrate deploy`   | Apply pending migrations (prod)      |
-| `npx prisma db seed`          | Seed the database                    |
-| `npx prisma generate`         | Regenerate Prisma client             |
-| `npx prisma studio`           | Open Prisma Studio GUI               |
+| Command                     | Description                        |
+| --------------------------- | ---------------------------------- |
+| `npm run dev`               | Start development server           |
+| `npm run build`             | Build for production               |
+| `npm run start`             | Start production server            |
+| `npm run lint`              | Run ESLint                         |
+| `npx prisma migrate dev`    | Run & generate a new migration     |
+| `npx prisma migrate deploy` | Apply pending migrations (prod)    |
+| `npx prisma db seed`        | Seed the database                  |
+| `npx prisma generate`       | Regenerate Prisma client           |
+| `npx prisma studio`         | Open Prisma Studio GUI             |
 
 ### Docker Commands
 
-| Command                                                    | Description                        |
-| ---------------------------------------------------------- | ---------------------------------- |
-| `docker compose -f docker-compose.dev.yml up --build`      | Start full dev stack               |
-| `docker compose -f docker-compose.dev.yml down -v`         | Stop dev stack & remove volumes    |
-| `docker compose up --build -d`                             | Start production stack             |
-| `docker compose down`                                      | Stop production stack              |
+| Command                                               | Description                     |
+| ----------------------------------------------------- | ------------------------------- |
+| `docker compose -f docker-compose.dev.yml up --build` | Start full dev stack            |
+| `docker compose -f docker-compose.dev.yml down -v`    | Stop dev stack & remove volumes |
+| `docker compose up --build -d`                        | Start production stack          |
+| `docker compose down`                                 | Stop production stack           |
 
 ---
 
 ## 🔒 Authentication Flow
 
 1. **Registration**: Users sign up with email/password or OAuth (GitHub/Google)
-2. **Validation**: Passwords require uppercase, lowercase, numbers, and special characters
-3. **Email Verification**: Verification tokens are stored in the `verification` table and managed automatically by Better Auth
-4. **Session Management**: Sessions are stored in the database with automatic expiry
-5. **Protected Routes**: All app routes verify the session server-side before rendering
+2. **Validation**: Passwords must be 8–20 characters and contain uppercase, lowercase, a number, and a special character (`!@#$%?&`)
+3. **Manual Sign-In**: `autoSignIn` is disabled — after successful registration, users are redirected to `/sign-in` to log in explicitly
+4. **Email Verification**: Verification tokens are stored in the `verification` table and managed automatically by Better Auth
+5. **Session Management**: Sessions are stored in the database with automatic expiry
+6. **Protected Routes**: All app routes verify the session server-side before rendering
 
 ---
 
@@ -378,21 +389,22 @@ Product
 - **Modern Design**: Clean, minimalist interface with purple accent colors
 - **Consistent Styling**: Unified design language across all pages
 - **Loading States**: Skeleton loaders and transitions for better UX
-- **Toast Notifications**: Success/error feedback using Sonner
+- **Toast Notifications**: Success/error feedback using Sonner (fires only on the correct code path)
 - **Responsive Tables**: Adapted views for mobile and desktop
-- **Interactive Charts**: Visual data representation for quick insights
+- **Interactive Charts**: Visual data representation with React Google Charts
 
 ---
 
 ## 🛡️ Security Features
 
 - **Input Sanitization**: All inputs validated with Zod schemas
-- **Image URL Validation**: HTTPS-only image URLs with blocked hosts
+- **Image URL Validation**: Only `https://res.cloudinary.com` and `https://lh3.googleusercontent.com` are permitted as remote image sources (configured in `next.config.ts`)
 - **Session Verification**: Server-side session checks on every request
 - **Secure Password Hashing**: Handled by Better Auth
 - **CSRF Protection**: Built into Next.js Server Actions
 - **Database Constraints**: Unique constraints to prevent duplicate SKUs, departments, and suppliers
 - **Non-root Container**: Production Docker image runs as a dedicated `nextjs` user
+- **`--ignore-scripts` in runner**: Production `npm ci` runs with `--ignore-scripts` to prevent untrusted postinstall hooks in the container
 
 ---
 
