@@ -4,7 +4,11 @@ import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import PageLayout from "@/components/layout/page-layout";
-import PieChart from "@/components/pie-chart";
+import dynamic from "next/dynamic";
+
+const PieChart = dynamic(() => import("@/components/pie-chart"), {
+  ssr: true,
+});
 
 const Dashboard = async () => {
   const session = await requireAuth();
