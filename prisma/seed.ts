@@ -2,8 +2,30 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 
+function getDatabaseUrl(): string | undefined {
+  const url = process.env.DATABASE_URL;
+  if (!url) return undefined;
+
+  try {
+    const parsed = new URL(url);
+    const sslmode = parsed.searchParams.get("sslmode");
+    if (
+      sslmode &&
+      ["require", "prefer", "verify-ca"].includes(sslmode) &&
+      !parsed.searchParams.has("uselibpqcompat")
+    ) {
+      parsed.searchParams.set("sslmode", "verify-full");
+      return parsed.toString();
+    }
+  } catch {
+    // Fall back to raw value if URL parsing fails
+  }
+
+  return url;
+}
+
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
+  connectionString: getDatabaseUrl()!,
 });
 
 const prisma = new PrismaClient({ adapter });

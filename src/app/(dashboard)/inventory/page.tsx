@@ -7,21 +7,17 @@ const Inventory = async () => {
   const session = await requireAuth();
   const userId = session.user.id;
 
-  const [totalCount, products] = await Promise.all([
-    prisma.product.count({
-      where: {
-        userId,
-      },
-    }),
-    await prisma.product.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        department: true,
-      },
-    }),
-  ]);
+  const products = await prisma.product.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      department: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   const serializedProducts = products.map((product) => ({
     ...product,

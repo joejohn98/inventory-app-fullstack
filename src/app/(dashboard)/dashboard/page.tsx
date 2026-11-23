@@ -14,29 +14,25 @@ const Dashboard = async () => {
   const session = await requireAuth();
   const userId = session.user.id;
 
-  const [totalProducts, allProducts] = await Promise.all([
-    await prisma.product.count({
-      where: { userId },
-    }),
-
-    await prisma.product.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        name: true,
-        department: {
-          select: {
-            name: true,
-          },
+  const allProducts = await prisma.product.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      name: true,
+      department: {
+        select: {
+          name: true,
         },
-        imageUrl: true,
-        price: true,
-        stock: true,
-        delivered: true,
-        createdAt: true,
       },
-    }),
-  ]);
+      imageUrl: true,
+      price: true,
+      stock: true,
+      delivered: true,
+      createdAt: true,
+    },
+  });
+
+  const totalProducts = allProducts.length;
 
   const totalDelivered = allProducts.reduce((sum, product) => {
     return sum + Number(product.delivered);

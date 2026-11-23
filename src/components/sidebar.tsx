@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import UserBlock from "@/components/userBlock";
 import { useEffect, useState } from "react";
 
@@ -26,7 +27,9 @@ const navItems = [
   { href: "/settings", icon: <Settings size={20} />, name: "Settings" },
 ];
 
-const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
+const Sidebar = ({ currentPath: propPath }: { currentPath?: string }) => {
+  const pathname = usePathname();
+  const currentPath = propPath ?? pathname ?? "/dashboard";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== "undefined") {
@@ -96,7 +99,9 @@ const Sidebar = ({ currentPath = "/dashboard" }: { currentPath: string }) => {
             Inventory
           </div>
           {navItems.map((item) => {
-            const isActive = currentPath === item.href;
+            const isActive =
+              currentPath === item.href ||
+              (item.href !== "/dashboard" && currentPath.startsWith(item.href));
             return (
               <Link
                 href={item.href}

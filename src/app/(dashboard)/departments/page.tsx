@@ -14,7 +14,11 @@ const Departments = async () => {
       userId,
     },
     include: {
-      products: true,
+      products: {
+        select: {
+          stock: true,
+        },
+      },
     },
   });
 
