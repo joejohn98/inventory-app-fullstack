@@ -227,6 +227,16 @@ The production `Dockerfile` is a **3-stage build**:
 
 ---
 
+## ⚡ Vercel Deployment & Performance
+
+The project is preconfigured for high-performance deployment on **Vercel** with managed PostgreSQL databases (such as Neon, Supabase, or AWS RDS):
+
+- **Serverless Region Co-location**: Configured in `vercel.json` with `sin1` (Singapore) to match database instances located in `ap-southeast-1`. Co-locating Vercel functions with your database region keeps database network latency to single-digit milliseconds.
+- **Connection Pooling**: When connecting to serverless databases (e.g. Neon), use the pooled connection string (with `-pooler`) in `DATABASE_URL` to avoid TCP/TLS handshake latency on every serverless function spin-up.
+- **SSL Configuration**: For modern `pg` and `@prisma/adapter-pg` drivers, use `sslmode=verify-full` in your production `DATABASE_URL` for secure, warning-free connections.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -241,16 +251,19 @@ inventory-fullstack/
 │
 ├── src/
 │   ├── app/                 # Next.js App Router
-│   │   ├── (auth)/          # Auth route group (no shared layout)
+│   │   ├── (auth)/          # Auth route group (isolated layout)
 │   │   │   ├── sign-in/     # Sign-in page
 │   │   │   └── sign-up/     # Sign-up page
-│   │   ├── add-product/     # Add new product page
+│   │   ├── (dashboard)/     # Authenticated dashboard route group (shared layout)
+│   │   │   ├── add-product/ # Add new product page
+│   │   │   ├── dashboard/   # Main dashboard with analytics
+│   │   │   ├── departments/ # Department overview page
+│   │   │   ├── inventory/   # Product inventory list
+│   │   │   │   └── [id]/    # Product detail & edit page
+│   │   │   ├── settings/    # User settings page
+│   │   │   ├── layout.tsx   # Persistent sidebar and shell layout
+│   │   │   └── loading.tsx  # Instant skeleton loading UI for page transitions
 │   │   ├── api/             # API routes (Better Auth handler)
-│   │   ├── dashboard/       # Main dashboard with analytics
-│   │   ├── departments/     # Department overview page
-│   │   ├── inventory/       # Product inventory list
-│   │   │   └── [id]/        # Product detail & edit page
-│   │   ├── settings/        # User settings page
 │   │   ├── error.tsx        # Root error boundary
 │   │   ├── globals.css      # Global styles
 │   │   ├── layout.tsx       # Root layout
@@ -309,7 +322,8 @@ inventory-fullstack/
 ├── package.json             # Dependencies & scripts
 ├── prisma.config.ts         # Prisma CLI configuration (datasource URL)
 ├── postcss.config.mjs       # PostCSS configuration
-└── tsconfig.json            # TypeScript configuration
+├── tsconfig.json            # TypeScript configuration
+└── vercel.json              # Vercel deployment configuration (region co-location)
 ```
 
 ---
@@ -388,7 +402,8 @@ Product
 
 - **Modern Design**: Clean, minimalist interface with purple accent colors
 - **Consistent Styling**: Unified design language across all pages
-- **Loading States**: Skeleton loaders and transitions for better UX
+- **Persistent Dashboard Shell**: Shared layout that keeps the sidebar mounted across navigations, eliminating DOM thrashing
+- **Instant Transitions**: Dynamic page loading states backed by `loading.tsx` skeletons for smooth, sub-50ms perceived navigation
 - **Toast Notifications**: Success/error feedback using Sonner (fires only on the correct code path)
 - **Responsive Tables**: Adapted views for mobile and desktop
 - **Interactive Charts**: Visual data representation with React Google Charts
